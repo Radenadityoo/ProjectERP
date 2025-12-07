@@ -139,6 +139,19 @@ class SalesOrderController extends Controller
             ],
         ];
 
+        $customers = [
+            ['id' => 1, 'name' => 'PT Maju Sejahtera'],
+            ['id' => 2, 'name' => 'CV Bersama Maju'],
+            ['id' => 3, 'name' => 'Perusahaan Emas Jaya'],
+        ];
+
+        $products = [
+            ['id' => 1, 'name' => 'Laptop Dell Latitude', 'price' => 12000000],
+            ['id' => 2, 'name' => 'Monitor LG 24"', 'price' => 2500000],
+            ['id' => 3, 'name' => 'Keyboard Mechanical', 'price' => 1500000],
+            ['id' => 4, 'name' => 'Mouse Logitech', 'price' => 350000],
+        ];
+
         return view('sales.orders.edit', compact('commandbar', 'order', 'customers', 'products'));
     }
 
@@ -147,6 +160,7 @@ class SalesOrderController extends Controller
         $data = $request->validate([
             'customer_id' => 'required',
             'order_date' => 'required|date',
+            'status' => 'in:draft,confirmed,cancelled',
         ]);
 
         return redirect()->route('sales.orders.index')->with('success', 'Sales order updated (demo) ID '.$id);

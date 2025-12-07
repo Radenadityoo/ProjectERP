@@ -154,6 +154,25 @@ class InvoiceController extends Controller
             ],
         ];
 
+        $customers = [
+            ['id' => 1, 'name' => 'PT Maju Sejahtera'],
+            ['id' => 2, 'name' => 'CV Bersama Maju'],
+            ['id' => 3, 'name' => 'Perusahaan Emas Jaya'],
+        ];
+
+        $products = [
+            ['id' => 1, 'name' => 'Laptop Dell Latitude', 'price' => 12000000],
+            ['id' => 2, 'name' => 'Monitor LG 24"', 'price' => 2500000],
+            ['id' => 3, 'name' => 'Keyboard Mechanical', 'price' => 850000],
+            ['id' => 4, 'name' => 'Mouse Wireless', 'price' => 350000],
+            ['id' => 5, 'name' => 'Headset Gaming', 'price' => 1200000],
+        ];
+
+        $journals = [
+            ['id' => 1, 'name' => 'Customer Invoices'],
+            ['id' => 2, 'name' => 'Credit Notes'],
+        ];
+
         return view('invoicing.invoices.edit', compact('commandbar', 'invoice', 'customers', 'products', 'journals'));
     }
 
@@ -163,6 +182,7 @@ class InvoiceController extends Controller
             'customer_id' => 'required',
             'invoice_date' => 'required|date',
             'due_date' => 'required|date',
+            'status' => 'in:draft,posted,paid,cancelled',
         ]);
 
         return redirect()->route('invoicing.invoices.index')->with('success', 'Invoice updated (demo) ID '.$id);

@@ -60,6 +60,7 @@ class PurchaseOrderController extends Controller
         $data = $request->validate([
             'vendor_id' => 'required',
             'order_date' => 'required|date',
+            'status' => 'in:Draft,Waiting,Purchase,Received',
         ]);
 
         return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated (demo) ID '.$id);

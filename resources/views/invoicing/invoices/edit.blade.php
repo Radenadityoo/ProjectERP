@@ -20,8 +20,13 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status</label>
-                            <input type="text" value="{{ $invoice['status'] }}" disabled class="w-full px-4 py-2 bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-500 dark:text-gray-400">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status *</label>
+                            <select name="status" required class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
+                                <option value="draft" {{ $invoice['status'] == 'Draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="posted" {{ $invoice['status'] == 'Posted' ? 'selected' : '' }}>Posted</option>
+                                <option value="paid" {{ $invoice['status'] == 'Paid' ? 'selected' : '' }}>Paid</option>
+                                <option value="cancelled" {{ $invoice['status'] == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            </select>
                         </div>
 
                         <div>
