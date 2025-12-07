@@ -11,38 +11,32 @@
 @endphp
 
 <div class="p-6 space-y-6">
-    {{-- Header & Filters --}}
-    <div class="flex flex-col gap-4">
-        <div class="mb-2">
-            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Purchase Orders</h1>
-        </div>
-        <div class="mb-4">
-            <a href="{{ route('purchase.orders.create') }}" class="inline-flex items-center px-4 py-2 bg-erp text-white rounded-xl shadow hover:bg-opacity-90 font-medium">
-                + New Purchase Order
-            </a>
-        </div>
-
-        <div class="flex flex-col md:flex-row gap-3 w-full">
-            <input type="search" placeholder="Search PO number or vendor…" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" />
-            <select class="w-full md:w-40 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                <option>Status (All)</option>
-                <option>Draft</option>
-                <option>Waiting</option>
-                <option>Purchase</option>
-                <option>Received</option>
-            </select>
-            <select class="w-full md:w-48 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                <option>Vendor (All)</option>
-                <option>Acme Supplies</option>
-                <option>Northwind Traders</option>
-                <option>Globex</option>
-                <option>Innotech</option>
-            </select>
-        </div>
+    <div class="mb-2">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Purchase Orders</h1>
+    </div>
+    <div class="mb-4">
+        <a href="{{ route('purchase.orders.create') }}" class="inline-flex items-center px-4 py-2 bg-erp text-white rounded-xl shadow hover:bg-opacity-90 font-medium">+ New Purchase Order</a>
     </div>
 
-    {{-- Table --}}
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <div class="flex flex-col md:flex-row gap-3 mb-4">
+        <input type="search" placeholder="Search PO number or vendor…" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" />
+        <select class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+            <option>Status (All)</option>
+            <option>Draft</option>
+            <option>Waiting</option>
+            <option>Purchase</option>
+            <option>Received</option>
+        </select>
+        <select class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+            <option>Vendor (All)</option>
+            <option>Acme Supplies</option>
+            <option>Northwind Traders</option>
+            <option>Globex</option>
+            <option>Innotech</option>
+        </select>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead class="text-left text-xs uppercase text-gray-500 dark:text-gray-400 border-b border-gray-100 dark:border-gray-700">
@@ -80,14 +74,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-            <span>Showing 1-{{ count($items) }} of 24</span>
-            <div class="flex items-center gap-2">
-                <button class="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">Prev</button>
-                <button class="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-700 bg-erp text-white">1</button>
-                <button class="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">2</button>
-                <button class="px-3 py-1 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">Next</button>
-            </div>
+        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
+            Showing 1-4 of 24
         </div>
     </div>
 </div>
