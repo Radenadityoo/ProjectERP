@@ -1,12 +1,7 @@
-<x-app-layout>
-    <div class="min-h-screen bg-[#F7F8F7] dark:bg-gray-950">
-        <div class="flex">
-            <x-sidebar />
-            
-            <main class="flex-1 overflow-y-auto">
-                @include('components.commandbar', $commandbar)
-                
-                <div class="p-6">
+@extends('layouts.admin')
+
+@section('content')
+<div class="space-y-6">
                     {{-- Header with Create Button --}}
                     <div class="mb-6">
                         <a href="{{ route('sales.orders.create') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-[#5A8E74] hover:bg-[#4a7a64] text-white rounded-lg transition">
@@ -111,7 +106,8 @@
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection

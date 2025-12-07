@@ -1,12 +1,7 @@
-<x-app-layout>
-    <div class="min-h-screen bg-[#F7F8F7] dark:bg-gray-950">
-        <div class="flex">
-            <x-sidebar />
-            
-            <main class="flex-1 overflow-y-auto">
-                @include('components.commandbar', $commandbar)
-                
-                <div class="p-6">
+@extends('layouts.admin')
+
+@section('content')
+<div class="space-y-6">
                     <form action="#" method="POST">
                         @csrf
                         @method('PUT')
@@ -170,11 +165,12 @@
                         </div>
                     </form>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
         let lineCounter = {{ count($order['lines']) }};
         const products = @json($products);
 
@@ -285,5 +281,5 @@
         
         // Initial calculation
         calculateTotals();
-    </script>
-</x-app-layout>
+</script>
+@endsection

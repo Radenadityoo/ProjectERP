@@ -1,12 +1,7 @@
-<x-app-layout>
-    <div class="min-h-screen bg-[#F7F8F7] dark:bg-gray-950">
-        <div class="flex">
-            <x-sidebar />
-            
-            <main class="flex-1 overflow-y-auto">
-                @include('components.commandbar', $commandbar)
-                
-                <div class="p-6">
+@extends('layouts.admin')
+
+@section('content')
+<div class="space-y-6">
                     {{-- Stats Grid --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                         {{-- Total Sales Orders --}}
@@ -142,7 +137,8 @@
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection

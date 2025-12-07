@@ -1,12 +1,7 @@
-<x-app-layout>
-    <div class="min-h-screen bg-[#F7F8F7] dark:bg-gray-950">
-        <div class="flex">
-            <x-sidebar />
-            
-            <main class="flex-1 overflow-y-auto">
-                @include('components.commandbar', $commandbar)
-                
-                <div class="p-6">
+@extends('layouts.admin')
+
+@section('content')
+<div class="space-y-6">
                     <form action="#" method="POST">
                         @csrf
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -125,11 +120,12 @@
                         </div>
                     </form>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
         let lineCounter = 0;
         const products = @json($products);
 
@@ -229,5 +225,5 @@
 
         // Add initial line
         addOrderLine();
-    </script>
-</x-app-layout>
+</script>
+@endsection

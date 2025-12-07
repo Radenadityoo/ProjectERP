@@ -1,12 +1,7 @@
-<x-app-layout>
-    <div class="min-h-screen bg-[#F7F8F7] dark:bg-gray-950">
-        <div class="flex">
-            <x-sidebar />
-            
-            <main class="flex-1 overflow-y-auto">
-                @include('components.commandbar', $commandbar)
-                
-                <div class="p-6">
+@extends('layouts.admin')
+
+@section('content')
+<div class="space-y-6">
                     <div class="max-w-3xl mx-auto">
                         <form action="#" method="POST">
                             @csrf
@@ -66,11 +61,12 @@
                         </form>
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
+</div>
 
-    <script>
+<script>
         const selectedTags = new Set();
         const tagSelect = document.getElementById('tagSelect');
         const selectedTagsContainer = document.getElementById('selectedTags');
@@ -106,5 +102,5 @@
             selectedTags.delete(tag);
             renderTags();
         }
-    </script>
-</x-app-layout>
+</script>
+@endsection
