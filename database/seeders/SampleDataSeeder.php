@@ -6,6 +6,12 @@ use App\Models\Product;
 use App\Models\BomHeader;
 use App\Models\BomComponent;
 use App\Models\Manufacturing;
+use App\Models\Customer;
+use App\Models\Vendor;
+use App\Models\SalesOrder;
+use App\Models\SalesOrderItem;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -107,6 +113,178 @@ class SampleDataSeeder extends Seeder
 
         foreach ($moData as $mo) {
             Manufacturing::updateOrCreate(['reference' => $mo['reference']], $mo);
+        }
+
+        // Link finished products into sales orders and invoices
+        $customers = Customer::whereIn('name', [
+            'PT Nusantara Jaya',
+            'CV Cahaya Mandiri',
+            'UD Berkah Sejahtera',
+            'Toko Sejahtera Elektronik',
+        ])->get()->keyBy('name');
+
+        $productsByRef = Product::whereIn('reference', ['MKR-01', 'MKR-02', 'MKR-03'])->get()->keyBy('reference');
+
+        $salesOrders = [
+            [
+                'so_number' => 'SO-2025-0101',
+                'customer_name' => 'PT Nusantara Jaya',
+                'order_date' => '2025-12-04',
+                'delivery_date' => '2025-12-10',
+                'status' => 'confirmed',
+                'notes' => 'From MO WH/MO/0101',
+                'lines' => [
+                    ['ref' => 'MKR-01', 'qty' => 20, 'price' => 35000, 'tax' => 11],
+                    ['ref' => 'MKR-02', 'qty' => 15, 'price' => 20000, 'tax' => 11],
+                ],
+            ],
+            [
+                'so_number' => 'SO-2025-0102',
+                'customer_name' => 'CV Cahaya Mandiri',
+                'order_date' => '2025-12-05',
+                'delivery_date' => '2025-12-12',
+                'status' => 'confirmed',
+                'notes' => 'From MO WH/MO/0102',
+                'lines' => [
+                    ['ref' => 'MKR-03', 'qty' => 25, 'price' => 40000, 'tax' => 11],
+                    ['ref' => 'MKR-02', 'qty' => 10, 'price' => 20000, 'tax' => 11],
+                ],
+            ],
+            [
+                'so_number' => 'SO-2025-0103',
+                'customer_name' => 'UD Berkah Sejahtera',
+                'order_date' => '2025-12-06',
+                'delivery_date' => '2025-12-15',
+                'status' => 'draft',
+                'notes' => 'Pending confirmation',
+                'lines' => [
+                    ['ref' => 'MKR-01', 'qty' => 10, 'price' => 35000, 'tax' => 11],
+                ],
+            ],
+        ];
+
+        foreach ($salesOrders as $row) {
+            $customer = $customers[$row['customer_name']] ?? Customer::first();
+            if (! $customer) {
+                continue;
+            }
+
+            $order = SalesOrder::updateOrCreate(
+                ['so_number' => $row['so_number']],
+                [
+                    'customer_id' => $customer->id,
+                    'order_date' => $row['order_date'],
+                    'delivery_date' => $row['delivery_date'],
+                    'status' => $row['status'],
+                    'notes' => $row['notes'] ?? null,
+                ]
+            );
+
+            $order->items()->delete();
+            $subtotal = 0;
+            $taxTotal = 0;
+
+            foreach ($row['lines'] as $line) {
+                $product = $productsByRef[$line['ref']] ?? null;
+                $lineSubtotal = $line['qty'] * $line['price'];
+                $lineTax = ($line['tax'] / 100) * $lineSubtotal;
+
+                SalesOrderItem::create([
+                    'sales_order_id' => $order->id,
+                    'product_id' => $product?->id,
+                    'description' => $product?->name,
+                    'quantity' => $line['qty'],
+                    'unit_price' => $line['price'],
+                    'tax_rate' => $line['tax'],
+                    'subtotal' => $lineSubtotal,
+                ]);
+
+                $subtotal += $lineSubtotal;
+                $taxTotal += $lineTax;
+            }
+
+            $order->update([
+                'subtotal' => $subtotal,
+                'tax_amount' => $taxTotal,
+                'total' => $subtotal + $taxTotal,
+            ]);
+        }
+
+        // Create invoices linked to sales orders
+        $salesOrdersIndexed = SalesOrder::with(['items', 'customer'])->whereIn('so_number', [
+            'SO-2025-0101', 'SO-2025-0102', 'SO-2025-0103',
+        ])->get()->keyBy('so_number');
+
+        $invoices = [
+            [
+                'number' => 'INV/2025/0101',
+                'so_number' => 'SO-2025-0101',
+                'invoice_date' => '2025-12-06',
+                'due_date' => '2025-12-16',
+                'status' => 'posted',
+            ],
+            [
+                'number' => 'INV/2025/0102',
+                'so_number' => 'SO-2025-0102',
+                'invoice_date' => '2025-12-07',
+                'due_date' => '2025-12-17',
+                'status' => 'posted',
+            ],
+            [
+                'number' => 'INV/2025/0103',
+                'so_number' => 'SO-2025-0103',
+                'invoice_date' => '2025-12-08',
+                'due_date' => '2025-12-18',
+                'status' => 'draft',
+            ],
+        ];
+
+        foreach ($invoices as $row) {
+            $order = $salesOrdersIndexed[$row['so_number']] ?? null;
+            if (! $order) {
+                continue;
+            }
+
+            $invoice = Invoice::updateOrCreate(
+                ['number' => $row['number']],
+                [
+                    'sales_order_id' => $order->id,
+                    'customer_id' => $order->customer_id,
+                    'invoice_date' => $row['invoice_date'],
+                    'due_date' => $row['due_date'],
+                    'status' => $row['status'],
+                    'reference' => $order->so_number,
+                ]
+            );
+
+            $invoice->items()->delete();
+
+            $subtotal = 0;
+            $taxTotal = 0;
+
+            foreach ($order->items as $item) {
+                $lineSubtotal = $item->quantity * $item->unit_price;
+                $lineTax = ($item->tax_rate / 100) * $lineSubtotal;
+
+                InvoiceItem::create([
+                    'invoice_id' => $invoice->id,
+                    'product_id' => $item->product_id,
+                    'description' => $item->description,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'tax_rate' => $item->tax_rate,
+                    'subtotal' => $lineSubtotal,
+                ]);
+
+                $subtotal += $lineSubtotal;
+                $taxTotal += $lineTax;
+            }
+
+            $invoice->update([
+                'subtotal' => $subtotal,
+                'tax_amount' => $taxTotal,
+                'total' => $subtotal + $taxTotal,
+            ]);
         }
     }
 }

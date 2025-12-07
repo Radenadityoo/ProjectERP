@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Invoicing;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
+use App\Models\Customer;
+use App\Models\Invoice;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
@@ -14,56 +17,24 @@ class PaymentController extends Controller
             'showViewSwitch' => false,
         ];
 
-        $payments = [
-            [
-                'id' => 1,
-                'payment_number' => 'PMT/2025/0015',
-                'customer' => 'PT Maju Jaya',
-                'invoice_ref' => 'INV/2025/0008',
-                'payment_date' => '2025-01-11',
-                'amount' => 'Rp 52,000,000',
-                'payment_method' => 'Bank Transfer',
-                'status' => 'Posted',
-            ],
-            [
-                'id' => 2,
-                'payment_number' => 'PMT/2025/0014',
-                'customer' => 'UD Berkah Sejahtera',
-                'invoice_ref' => 'INV/2025/0010',
-                'payment_date' => '2025-01-15',
-                'amount' => 'Rp 35,000,000',
-                'payment_method' => 'Bank Transfer',
-                'status' => 'Posted',
-            ],
-            [
-                'id' => 3,
-                'payment_number' => 'PMT/2025/0013',
-                'customer' => 'CV Sentosa Makmur',
-                'invoice_ref' => 'INV/2025/0006',
-                'payment_date' => '2025-01-12',
-                'amount' => 'Rp 18,500,000',
-                'payment_method' => 'Cash',
-                'status' => 'Posted',
-            ],
-            [
-                'id' => 4,
-                'payment_number' => 'PMT/2025/0012',
-                'customer' => 'Toko Elektronik Jaya',
-                'invoice_ref' => 'INV/2025/0005',
-                'payment_date' => '2025-01-08',
-                'amount' => 'Rp 12,000,000',
-                'payment_method' => 'Bank Transfer',
-                'status' => 'Posted',
-            ],
-        ];
+        $payments = Payment::with('customer', 'invoice')
+            ->orderBy('payment_date', 'desc')
+            ->get()
+            ->map(function($p) {
+                return [
+                    'id' => $p->id,
+                    'payment_number' => $p->payment_number,
+                    'customer' => $p->customer?->name ?? 'N/A',
+                    'invoice_ref' => $p->invoice_ref ?? $p->invoice?->number ?? 'N/A',
+                    'payment_date' => $p->payment_date instanceof \Carbon\Carbon ? $p->payment_date->format('Y-m-d') : $p->payment_date,
+                    'amount' => currency($p->amount, 'IDR'),
+                    'payment_method' => $p->payment_method,
+                    'status' => ucfirst($p->status),
+                ];
+            })
+            ->toArray();
 
-        $customers = [
-            ['id' => 1, 'name' => 'PT Maju Jaya'],
-            ['id' => 2, 'name' => 'CV Sentosa Makmur'],
-            ['id' => 3, 'name' => 'UD Berkah Sejahtera'],
-            ['id' => 4, 'name' => 'Toko Elektronik Jaya'],
-            ['id' => 5, 'name' => 'PT Global Trading'],
-        ];
+        $customers = Customer::orderBy('name')->get();
 
         return view('invoicing.payments.index', compact('commandbar', 'payments', 'customers'));
     }
@@ -75,19 +46,19 @@ class PaymentController extends Controller
             'showViewSwitch' => false,
         ];
 
-        $customers = [
-            ['id' => 1, 'name' => 'PT Maju Jaya'],
-            ['id' => 2, 'name' => 'CV Sentosa Makmur'],
-            ['id' => 3, 'name' => 'UD Berkah Sejahtera'],
-            ['id' => 4, 'name' => 'Toko Elektronik Jaya'],
-            ['id' => 5, 'name' => 'PT Global Trading'],
-        ];
-
-        $invoices = [
-            ['id' => 1, 'number' => 'INV/2025/0012', 'customer_id' => 1, 'amount_due' => 42000000],
-            ['id' => 2, 'number' => 'INV/2025/0011', 'customer_id' => 2, 'amount_due' => 28500000],
-            ['id' => 3, 'number' => 'INV/2025/0009', 'customer_id' => 4, 'amount_due' => 18000000],
-        ];
+        $customers = Customer::orderBy('name')->get();
+        $invoices = Invoice::with('customer')
+            ->whereIn('status', ['sent', 'partial'])
+            ->orderBy('invoice_date', 'desc')
+            ->get()
+            ->map(function($inv) {
+                return [
+                    'id' => $inv->id,
+                    'number' => $inv->number,
+                    'customer_id' => $inv->customer_id,
+                    'amount_due' => $inv->total - $inv->amount_paid,
+                ];
+            });
 
         $journals = [
             ['id' => 1, 'name' => 'Bank - BCA'],
@@ -101,9 +72,10 @@ class PaymentController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'payment_number' => 'required|string',
+            'payment_number' => 'required|string|unique:payments,payment_number',
             'payment_date' => 'required|date',
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
+            'invoice_id' => 'nullable|exists:invoices,id',
             'invoice_ref' => 'nullable|string',
             'journal' => 'required|string',
             'payment_method' => 'required|string',
@@ -111,11 +83,25 @@ class PaymentController extends Controller
             'memo' => 'nullable|string',
         ]);
 
-        // Demo implementation: no persistence yet, just fake an ID and redirect
-        $newId = now()->timestamp;
+        $data['status'] = 'posted';
+        $payment = Payment::create($data);
+
+        // Update invoice if linked
+        if ($payment->invoice_id) {
+            $invoice = Invoice::find($payment->invoice_id);
+            if ($invoice) {
+                $newAmountPaid = (float)$invoice->amount_paid + (float)$payment->amount;
+                $newStatus = $newAmountPaid >= (float)$invoice->total ? 'paid' : 'partial';
+                
+                $invoice->update([
+                    'amount_paid' => $newAmountPaid,
+                    'status' => $newStatus,
+                ]);
+            }
+        }
 
         return redirect()
             ->route('invoicing.payments.index')
-            ->with('success', 'Payment registered: '.$data['payment_number'].' (ID '.$newId.')');
+            ->with('success', 'Payment registered successfully.');
     }
 }

@@ -47,12 +47,58 @@ class PurchaseOrderController extends Controller
         $data = $request->validate([
             'vendor_id' => 'required',
             'order_date' => 'required|date',
+            'product_id' => 'nullable|array',
+            'product_id.*' => 'nullable|exists:products,id',
+            'description' => 'nullable|array',
+            'quantity' => 'nullable|array',
+            'unit_price' => 'nullable|array',
+            'tax_rate' => 'nullable|array',
         ]);
 
-        $data['status'] = 'Draft';
-        $po = \App\Models\PurchaseOrder::create($data);
+        $po = \App\Models\PurchaseOrder::create([
+            'vendor_id' => $data['vendor_id'],
+            'order_date' => $data['order_date'],
+            'status' => 'Draft',
+            'total' => 0,
+        ]);
 
-        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order saved ID '.$po->id);
+        // Save items
+        $total = 0;
+        $productIds = $data['product_id'] ?? [];
+        $descriptions = $data['description'] ?? [];
+        $quantities = $data['quantity'] ?? [];
+        $unitPrices = $data['unit_price'] ?? [];
+        $taxRates = $data['tax_rate'] ?? [];
+
+        for ($i = 0; $i < count($productIds); $i++) {
+            if (empty($productIds[$i]) && empty($quantities[$i])) continue;
+            
+            $qty = floatval($quantities[$i] ?? 0);
+            $price = floatval($unitPrices[$i] ?? 0);
+            $tax = 0;
+            if (isset($taxRates[$i])) {
+                $taxStr = str_replace('%', '', $taxRates[$i]);
+                $tax = floatval($taxStr);
+            }
+            $subtotal = $qty * $price;
+            $taxAmount = $subtotal * ($tax / 100);
+            
+            \App\Models\PurchaseOrderItem::create([
+                'purchase_order_id' => $po->id,
+                'product_id' => $productIds[$i] ?: null,
+                'description' => $descriptions[$i] ?? null,
+                'quantity' => $qty,
+                'unit_price' => $price,
+                'tax_rate' => $tax,
+                'subtotal' => $subtotal + $taxAmount,
+            ]);
+            
+            $total += $subtotal + $taxAmount;
+        }
+
+        $po->update(['total' => $total]);
+
+        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order created successfully');
     }
 
     public function edit($id)
@@ -74,11 +120,60 @@ class PurchaseOrderController extends Controller
             'vendor_id' => 'required',
             'order_date' => 'required|date',
             'status' => 'in:Draft,Waiting,Purchase,Received',
+            'product_id' => 'nullable|array',
+            'product_id.*' => 'nullable|exists:products,id',
+            'description' => 'nullable|array',
+            'quantity' => 'nullable|array',
+            'unit_price' => 'nullable|array',
+            'tax_rate' => 'nullable|array',
         ]);
 
         $po = \App\Models\PurchaseOrder::findOrFail($id);
-        $po->update($data);
+        $po->update([
+            'vendor_id' => $data['vendor_id'],
+            'order_date' => $data['order_date'],
+            'status' => $data['status'],
+        ]);
 
-        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated ID '.$id);
+        // Delete existing items and recreate
+        $po->items()->delete();
+
+        // Save items
+        $total = 0;
+        $productIds = $data['product_id'] ?? [];
+        $descriptions = $data['description'] ?? [];
+        $quantities = $data['quantity'] ?? [];
+        $unitPrices = $data['unit_price'] ?? [];
+        $taxRates = $data['tax_rate'] ?? [];
+
+        for ($i = 0; $i < count($productIds); $i++) {
+            if (empty($productIds[$i]) && empty($quantities[$i])) continue;
+            
+            $qty = floatval($quantities[$i] ?? 0);
+            $price = floatval($unitPrices[$i] ?? 0);
+            $tax = 0;
+            if (isset($taxRates[$i])) {
+                $taxStr = str_replace('%', '', $taxRates[$i]);
+                $tax = floatval($taxStr);
+            }
+            $subtotal = $qty * $price;
+            $taxAmount = $subtotal * ($tax / 100);
+            
+            \App\Models\PurchaseOrderItem::create([
+                'purchase_order_id' => $po->id,
+                'product_id' => $productIds[$i] ?: null,
+                'description' => $descriptions[$i] ?? null,
+                'quantity' => $qty,
+                'unit_price' => $price,
+                'tax_rate' => $tax,
+                'subtotal' => $subtotal + $taxAmount,
+            ]);
+            
+            $total += $subtotal + $taxAmount;
+        }
+
+        $po->update(['total' => $total]);
+
+        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated successfully');
     }
 }

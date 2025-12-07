@@ -45,11 +45,16 @@ class VendorController extends Controller
             'name' => 'required|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
+            'address' => 'nullable|string',
+            'payment_terms' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'notes' => 'nullable|string',
         ]);
 
-        $id = now()->timestamp;
+        $data['total_spend'] = 0;
+        $vendor = \App\Models\Vendor::create($data);
 
-        return redirect()->route('purchase.vendors.index')->with('success', 'Vendor saved (demo) ID '.$id);
+        return redirect()->route('purchase.vendors.index')->with('success', 'Vendor created successfully.');
     }
 
     public function edit($id)
@@ -65,12 +70,20 @@ class VendorController extends Controller
 
     public function update(Request $request, $id)
     {
+        $vendor = \App\Models\Vendor::findOrFail($id);
+        
         $data = $request->validate([
             'name' => 'required|string',
             'email' => 'nullable|email',
             'phone' => 'nullable|string',
+            'address' => 'nullable|string',
+            'payment_terms' => 'nullable|string',
+            'tags' => 'nullable|array',
+            'notes' => 'nullable|string',
         ]);
 
-        return redirect()->route('purchase.vendors.index')->with('success', 'Vendor updated (demo) ID '.$id);
+        $vendor->update($data);
+
+        return redirect()->route('purchase.vendors.index')->with('success', 'Vendor updated successfully.');
     }
 }

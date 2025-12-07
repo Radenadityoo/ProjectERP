@@ -3,64 +3,36 @@
 namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
+use App\Models\Product;
+use App\Models\SalesOrder;
+use App\Models\SalesOrderItem;
 use Illuminate\Http\Request;
 
 class SalesOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $orders = SalesOrder::with('customer')
+            ->orderByDesc('order_date')
+            ->get()
+            ->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'so_number' => $order->so_number,
+                    'customer' => $order->customer?->name,
+                    'order_date' => optional($order->order_date)->format('Y-m-d'),
+                    'delivery_date' => optional($order->delivery_date)->format('Y-m-d'),
+                    'status' => $order->status,
+                    'total' => 'Rp ' . number_format((float) ($order->total ?? 0), 0, ',', '.'),
+                ];
+            });
+
         $commandbar = [
             'title' => 'Sales Orders',
+            'count' => $orders->count(),
             'showViewSwitch' => false,
             'searchParam' => 'q',
-        ];
-
-        $orders = [
-            [
-                'id' => 1,
-                'so_number' => 'SO-2025-001',
-                'customer' => 'PT Maju Jaya',
-                'order_date' => '2025-01-15',
-                'delivery_date' => '2025-01-25',
-                'status' => 'confirmed',
-                'total' => 'Rp 25,000,000',
-            ],
-            [
-                'id' => 2,
-                'so_number' => 'SO-2025-002',
-                'customer' => 'CV Sentosa Makmur',
-                'order_date' => '2025-01-18',
-                'delivery_date' => '2025-01-28',
-                'status' => 'draft',
-                'total' => 'Rp 18,500,000',
-            ],
-            [
-                'id' => 3,
-                'so_number' => 'SO-2025-003',
-                'customer' => 'UD Berkah Sejahtera',
-                'order_date' => '2025-01-20',
-                'delivery_date' => '2025-02-05',
-                'status' => 'confirmed',
-                'total' => 'Rp 32,000,000',
-            ],
-            [
-                'id' => 4,
-                'so_number' => 'SO-2025-004',
-                'customer' => 'Toko Elektronik Jaya',
-                'order_date' => '2025-01-22',
-                'delivery_date' => '2025-02-10',
-                'status' => 'delivered',
-                'total' => 'Rp 15,000,000',
-            ],
-            [
-                'id' => 5,
-                'so_number' => 'SO-2025-005',
-                'customer' => 'PT Global Trading',
-                'order_date' => '2025-01-25',
-                'delivery_date' => '2025-02-15',
-                'status' => 'cancelled',
-                'total' => 'Rp 22,000,000',
-            ],
         ];
 
         return view('sales.orders.index', compact('commandbar', 'orders'));
@@ -73,21 +45,8 @@ class SalesOrderController extends Controller
             'showViewSwitch' => false,
         ];
 
-        $customers = [
-            ['id' => 1, 'name' => 'PT Maju Jaya'],
-            ['id' => 2, 'name' => 'CV Sentosa Makmur'],
-            ['id' => 3, 'name' => 'UD Berkah Sejahtera'],
-            ['id' => 4, 'name' => 'Toko Elektronik Jaya'],
-            ['id' => 5, 'name' => 'PT Global Trading'],
-        ];
-
-        $products = [
-            ['id' => 1, 'name' => 'Laptop Dell Latitude', 'price' => 12000000],
-            ['id' => 2, 'name' => 'Monitor LG 24"', 'price' => 2500000],
-            ['id' => 3, 'name' => 'Keyboard Mechanical', 'price' => 850000],
-            ['id' => 4, 'name' => 'Mouse Wireless', 'price' => 350000],
-            ['id' => 5, 'name' => 'Headset Gaming', 'price' => 1200000],
-        ];
+        $customers = Customer::orderBy('name')->get(['id', 'name']);
+        $products = Product::orderBy('name')->get(['id', 'name', 'price']);
 
         return view('sales.orders.create', compact('commandbar', 'customers', 'products'));
     }
@@ -95,13 +54,57 @@ class SalesOrderController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
             'order_date' => 'required|date',
+            'delivery_date' => 'nullable|date',
+            'status' => 'nullable|in:draft,confirmed,delivered,cancelled',
+            'lines' => 'required|array|min:1',
+            'lines.*.product_id' => 'nullable|exists:products,id',
+            'lines.*.description' => 'nullable|string',
+            'lines.*.quantity' => 'required|numeric|min:0.01',
+            'lines.*.unit_price' => 'required|numeric|min:0',
+            'lines.*.tax' => 'nullable|numeric|min:0',
         ]);
 
-        $id = now()->timestamp;
+        $soNumber = 'SO-' . now()->format('YmdHis');
 
-        return redirect()->route('sales.orders.index')->with('success', 'Sales order saved (demo) ID '.$id);
+        $order = SalesOrder::create([
+            'so_number' => $soNumber,
+            'customer_id' => $data['customer_id'],
+            'order_date' => $data['order_date'],
+            'delivery_date' => $data['delivery_date'] ?? null,
+            'status' => $data['status'] ?? 'draft',
+            'notes' => $request->input('notes'),
+        ]);
+
+        $subtotal = 0;
+        $taxTotal = 0;
+
+        foreach ($data['lines'] as $line) {
+            $lineSubtotal = $line['quantity'] * $line['unit_price'];
+            $lineTax = ($line['tax'] ?? 0) / 100 * $lineSubtotal;
+
+            SalesOrderItem::create([
+                'sales_order_id' => $order->id,
+                'product_id' => $line['product_id'] ?? null,
+                'description' => $line['description'] ?? null,
+                'quantity' => $line['quantity'],
+                'unit_price' => $line['unit_price'],
+                'tax_rate' => $line['tax'] ?? 0,
+                'subtotal' => $lineSubtotal,
+            ]);
+
+            $subtotal += $lineSubtotal;
+            $taxTotal += $lineTax;
+        }
+
+        $order->update([
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxTotal,
+            'total' => $subtotal + $taxTotal,
+        ]);
+
+        return redirect()->route('sales.orders.index')->with('success', 'Sales order saved');
     }
 
     public function edit($id)
@@ -111,47 +114,29 @@ class SalesOrderController extends Controller
             'showViewSwitch' => false,
         ];
 
+        $orderModel = SalesOrder::with('items')->findOrFail($id);
+
         $order = [
-            'id' => $id,
-            'so_number' => 'SO-2025-001',
-            'customer_id' => 1,
-            'order_date' => '2025-01-15',
-            'delivery_date' => '2025-01-25',
-            'payment_terms' => '30 days',
-            'pricelist' => 'Standard',
-            'status' => 'confirmed',
-            'lines' => [
-                [
-                    'product_id' => 1,
-                    'product_name' => 'Laptop Dell Latitude',
-                    'description' => 'High-performance business laptop',
-                    'quantity' => 5,
-                    'unit_price' => 12000000,
-                    'tax' => 11,
-                ],
-                [
-                    'product_id' => 2,
-                    'product_name' => 'Monitor LG 24"',
-                    'description' => 'Full HD IPS display',
-                    'quantity' => 10,
-                    'unit_price' => 2500000,
-                    'tax' => 11,
-                ],
-            ],
+            'id' => $orderModel->id,
+            'so_number' => $orderModel->so_number,
+            'customer_id' => $orderModel->customer_id,
+            'order_date' => optional($orderModel->order_date)->format('Y-m-d'),
+            'delivery_date' => optional($orderModel->delivery_date)->format('Y-m-d'),
+            'status' => $orderModel->status,
+            'lines' => $orderModel->items->map(function ($item) {
+                return [
+                    'product_id' => $item->product_id,
+                    'product_name' => $item->product?->name,
+                    'description' => $item->description,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'tax' => $item->tax_rate,
+                ];
+            })->toArray(),
         ];
 
-        $customers = [
-            ['id' => 1, 'name' => 'PT Maju Sejahtera'],
-            ['id' => 2, 'name' => 'CV Bersama Maju'],
-            ['id' => 3, 'name' => 'Perusahaan Emas Jaya'],
-        ];
-
-        $products = [
-            ['id' => 1, 'name' => 'Laptop Dell Latitude', 'price' => 12000000],
-            ['id' => 2, 'name' => 'Monitor LG 24"', 'price' => 2500000],
-            ['id' => 3, 'name' => 'Keyboard Mechanical', 'price' => 1500000],
-            ['id' => 4, 'name' => 'Mouse Logitech', 'price' => 350000],
-        ];
+        $customers = Customer::orderBy('name')->get(['id', 'name']);
+        $products = Product::orderBy('name')->get(['id', 'name', 'price']);
 
         return view('sales.orders.edit', compact('commandbar', 'order', 'customers', 'products'));
     }
@@ -159,11 +144,55 @@ class SalesOrderController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
             'order_date' => 'required|date',
-            'status' => 'in:draft,confirmed,cancelled',
+            'delivery_date' => 'nullable|date',
+            'status' => 'in:draft,confirmed,delivered,cancelled',
+            'lines' => 'required|array|min:1',
+            'lines.*.product_id' => 'nullable|exists:products,id',
+            'lines.*.description' => 'nullable|string',
+            'lines.*.quantity' => 'required|numeric|min:0.01',
+            'lines.*.unit_price' => 'required|numeric|min:0',
+            'lines.*.tax' => 'nullable|numeric|min:0',
         ]);
 
-        return redirect()->route('sales.orders.index')->with('success', 'Sales order updated (demo) ID '.$id);
+        $order = SalesOrder::findOrFail($id);
+        $order->update([
+            'customer_id' => $data['customer_id'],
+            'order_date' => $data['order_date'],
+            'delivery_date' => $data['delivery_date'] ?? null,
+            'status' => $data['status'],
+            'notes' => $request->input('notes'),
+        ]);
+
+        $order->items()->delete();
+
+        $subtotal = 0;
+        $taxTotal = 0;
+        foreach ($data['lines'] as $line) {
+            $lineSubtotal = $line['quantity'] * $line['unit_price'];
+            $lineTax = ($line['tax'] ?? 0) / 100 * $lineSubtotal;
+
+            SalesOrderItem::create([
+                'sales_order_id' => $order->id,
+                'product_id' => $line['product_id'] ?? null,
+                'description' => $line['description'] ?? null,
+                'quantity' => $line['quantity'],
+                'unit_price' => $line['unit_price'],
+                'tax_rate' => $line['tax'] ?? 0,
+                'subtotal' => $lineSubtotal,
+            ]);
+
+            $subtotal += $lineSubtotal;
+            $taxTotal += $lineTax;
+        }
+
+        $order->update([
+            'subtotal' => $subtotal,
+            'tax_amount' => $taxTotal,
+            'total' => $subtotal + $taxTotal,
+        ]);
+
+        return redirect()->route('sales.orders.index')->with('success', 'Sales order updated');
     }
 }

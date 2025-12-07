@@ -34,7 +34,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                    @foreach($vendors as $vendor)
+                    @forelse($vendors as $vendor)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
                             <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{{ $vendor->name }}</td>
                             <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $vendor->email }}</td>
@@ -65,4 +65,14 @@
                                 </div>
                             </td>
                         </tr>
-                    @endforeach
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">No vendors yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endsection

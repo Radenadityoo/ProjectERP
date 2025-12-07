@@ -55,9 +55,10 @@ class CustomerController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $id = now()->timestamp;
+        $data['total_spend'] = 0;
+        $customer = Customer::create($data);
 
-        return redirect()->route('sales.customers.index')->with('success', 'Customer saved (demo) ID '.$id);
+        return redirect()->route('sales.customers.index')->with('success', 'Customer created successfully.');
     }
 
     public function edit($id)
@@ -75,6 +76,8 @@ class CustomerController extends Controller
 
     public function update(Request $request, $id)
     {
+        $customer = Customer::findOrFail($id);
+        
         $data = $request->validate([
             'name' => 'required|string',
             'email' => 'required|email',
@@ -84,6 +87,8 @@ class CustomerController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        return redirect()->route('sales.customers.index')->with('success', 'Customer updated (demo) ID '.$id);
+        $customer->update($data);
+
+        return redirect()->route('sales.customers.index')->with('success', 'Customer updated successfully.');
     }
 }
