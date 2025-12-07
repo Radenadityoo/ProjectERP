@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="space-y-6">
-                    <form action="#" method="POST">
+                    <form action="{{ route('sales.orders.update', $order['id']) }}" method="POST">
                         @csrf
                         @method('PUT')
                         

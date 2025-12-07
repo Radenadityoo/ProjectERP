@@ -17,5 +17,6 @@ class Product extends Model
         'barcode',
         'company',
         'internal_notes',
+        'uom',
     ];
 }

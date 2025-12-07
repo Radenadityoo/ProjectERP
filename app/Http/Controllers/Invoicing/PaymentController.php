@@ -57,7 +57,15 @@ class PaymentController extends Controller
             ],
         ];
 
-        return view('invoicing.payments.index', compact('commandbar', 'payments'));
+        $customers = [
+            ['id' => 1, 'name' => 'PT Maju Jaya'],
+            ['id' => 2, 'name' => 'CV Sentosa Makmur'],
+            ['id' => 3, 'name' => 'UD Berkah Sejahtera'],
+            ['id' => 4, 'name' => 'Toko Elektronik Jaya'],
+            ['id' => 5, 'name' => 'PT Global Trading'],
+        ];
+
+        return view('invoicing.payments.index', compact('commandbar', 'payments', 'customers'));
     }
 
     public function create()
@@ -88,5 +96,26 @@ class PaymentController extends Controller
         ];
 
         return view('invoicing.payments.create', compact('commandbar', 'customers', 'invoices', 'journals'));
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'payment_number' => 'required|string',
+            'payment_date' => 'required|date',
+            'customer_id' => 'required',
+            'invoice_ref' => 'nullable|string',
+            'journal' => 'required|string',
+            'payment_method' => 'required|string',
+            'amount' => 'required|numeric|min:0',
+            'memo' => 'nullable|string',
+        ]);
+
+        // Demo implementation: no persistence yet, just fake an ID and redirect
+        $newId = now()->timestamp;
+
+        return redirect()
+            ->route('invoicing.payments.index')
+            ->with('success', 'Payment registered: '.$data['payment_number'].' (ID '.$newId.')');
     }
 }

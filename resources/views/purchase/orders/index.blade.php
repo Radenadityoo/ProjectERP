@@ -29,10 +29,10 @@
         </select>
         <select class="px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
             <option>Vendor (All)</option>
-            <option>Acme Supplies</option>
-            <option>Northwind Traders</option>
-            <option>Globex</option>
-            <option>Innotech</option>
+            <option>PT Mitra Logistik</option>
+            <option>CV Bumi Makmur</option>
+            <option>PT Cahaya Elektronik</option>
+            <option>PT Anugerah Mesin</option>
         </select>
     </div>
 
@@ -51,22 +51,22 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                    @foreach($items as $po)
+                    @foreach($orders as $po)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
-                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{{ $po['number'] }}</td>
-                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">{{ $po['vendor'] }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $po['order_date'] }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $po['arrival'] }}</td>
+                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{{ $po->po_number }}</td>
+                            <td class="px-4 py-3 text-gray-800 dark:text-gray-200">{{ $po->vendor ? $po->vendor->name : '-' }}</td>
+                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $po->order_date?->format('Y-m-d') }}</td>
+                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $po->expected_arrival?->format('Y-m-d') }}</td>
                             <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $statusColors[$po['status']] ?? 'bg-gray-100 text-gray-700' }}">
-                                    {{ $po['status'] }}
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $statusColors[$po->status] ?? 'bg-gray-100 text-gray-700' }}">
+                                    {{ $po->status }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">${{ number_format($po['total'], 2) }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">{{ currency($po->total, $po->currency ?? 'IDR') }}</td>
                             <td class="px-4 py-3 text-right">
                                 <div class="inline-flex items-center gap-3 text-sm">
                                     <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
-                                    <a href="{{ route('purchase.orders.edit', 1) }}" class="text-erp hover:underline">Edit</a>
+                                    <a href="{{ route('purchase.orders.edit', $po->id) }}" class="text-erp hover:underline">Edit</a>
                                 </div>
                             </td>
                         </tr>

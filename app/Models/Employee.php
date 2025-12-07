@@ -7,6 +7,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property int $id
+ * @property string|null $employee_id
+ * @property string $name
+ * @property string|null $gender
+ * @property \Illuminate\Support\Carbon|null $dob
+ * @property string|null $national_id
+ * @property string|null $address
+ * @property string|null $phone
+ * @property string|null $personal_email
+ * @property string|null $job_title
+ * @property string|null $department
+ * @property int|null $manager_id
+ * @property string|null $work_email
+ * @property string|null $work_phone
+ * @property string|null $employment_type
+ * @property \Illuminate\Support\Carbon|null $hire_date
+ * @property \Illuminate\Support\Carbon|null $end_date
+ * @property string|null $status
+ * @property string|null $profile_photo_path
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class Employee extends Model
 {
     use HasFactory;

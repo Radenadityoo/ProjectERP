@@ -14,11 +14,17 @@ class InvoiceDashboardController extends Controller
             'showViewSwitch' => false,
         ];
 
+        // Basic stats derived from available customer data (acts as invoices demo)
+        $total_invoices = \App\Models\Customer::count();
+        $total_outstanding = \App\Models\Customer::sum('total_spend');
+        $overdue_invoices = \App\Models\Customer::where('tags', 'like', '%overdue%')->count();
+        $paid_this_month = \App\Models\Customer::whereMonth('updated_at', now()->month)->sum('total_spend');
+
         $stats = [
-            'total_invoices' => 128,
-            'total_outstanding' => 'Rp 91,000,000',
-            'overdue_invoices' => 5,
-            'paid_this_month' => 'Rp 125,000,000',
+            'total_invoices' => $total_invoices,
+            'total_outstanding' => currency($total_outstanding, 'IDR'),
+            'overdue_invoices' => $overdue_invoices,
+            'paid_this_month' => currency($paid_this_month, 'IDR'),
         ];
 
         $recent_invoices = [
@@ -64,11 +70,28 @@ class InvoiceDashboardController extends Controller
             ],
         ];
 
-        $trend_data = [
-            'labels' => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            'values' => [85, 92, 88, 95, 90, 91],
-        ];
+        return view('invoicing.dashboard', compact('commandbar', 'stats', 'recent_invoices'));
+    }
 
-        return view('invoicing.dashboard', compact('commandbar', 'stats', 'recent_invoices', 'trend_data'));
+    /**
+     * Return invoice trends data for Chart.js (using customer total_spend as demo invoices)
+     */
+    public function trendsJson()
+    {
+        $months = collect(range(0, 5))->map(fn($i) => now()->subMonths($i)->format('Y-m'))->reverse()->values();
+
+        $invoices = \App\Models\Customer::selectRaw('DATE_FORMAT(created_at, "%Y-%m") as ym, SUM(total_spend) as total')
+            ->where('created_at', '>=', now()->subMonths(5)->startOfMonth())
+            ->groupBy('ym')
+            ->orderBy('ym')
+            ->pluck('total', 'ym');
+
+        $labels = $months;
+        $data = $months->map(fn($m) => (float)($invoices[$m] ?? 0));
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
     }
 }

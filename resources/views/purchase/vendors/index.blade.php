@@ -34,34 +34,35 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                    @foreach($items as $v)
+                    @foreach($vendors as $vendor)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
-                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{{ $v['name'] }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $v['email'] }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $v['phone'] }}</td>
-                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $v['terms'] }}</td>
+                            <td class="px-4 py-3 font-semibold text-gray-900 dark:text-gray-100">{{ $vendor->name }}</td>
+                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $vendor->email }}</td>
+                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $vendor->phone }}</td>
+                            <td class="px-4 py-3 text-gray-700 dark:text-gray-300">{{ $vendor->payment_terms }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex flex-wrap gap-2">
-                                    @foreach($v['tags'] as $tag)
-                                        <span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200">{{ $tag }}</span>
+                                    @foreach(($vendor->tags ?? []) as $tag)
+                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                            {{ $tag }}
+                                        </span>
                                     @endforeach
                                 </div>
                             </td>
-                            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">${{ number_format($v['spend'], 0) }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">{{ currency($vendor->total_spend, 'IDR') }}</td>
                             <td class="px-4 py-3 text-right">
-                                <div class="inline-flex items-center gap-3 text-sm">
-                                    <a href="#" class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
-                                    <a href="{{ route('purchase.vendors.edit', $v['id']) }}" class="text-erp hover:underline">Edit</a>
+                                <div class="flex items-center gap-2 justify-end">
+                                    <a href="{{ route('purchase.vendors.edit', $vendor->id) }}" class="text-[#5A8E74] hover:text-[#4a7a64]">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </a>
+                                    <button class="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     @endforeach
-                </tbody>
-            </table>
-        </div>
-        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
-            Showing 1-3 of 12
-        </div>
-    </div>
-</div>
-@endsection

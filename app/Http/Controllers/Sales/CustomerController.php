@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Sales;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
+use App\Models\Customer;
 
 class CustomerController extends Controller
 {
@@ -14,48 +16,7 @@ class CustomerController extends Controller
             'showViewSwitch' => false,
         ];
 
-        $customers = [
-            [
-                'id' => 1,
-                'name' => 'PT Maju Jaya',
-                'email' => 'contact@majujaya.co.id',
-                'phone' => '+62 21 5551234',
-                'tags' => ['Corporate', 'VIP'],
-                'total_spend' => 'Rp 85,000,000',
-            ],
-            [
-                'id' => 2,
-                'name' => 'CV Sentosa Makmur',
-                'email' => 'info@sentosa.com',
-                'phone' => '+62 21 5555678',
-                'tags' => ['Corporate'],
-                'total_spend' => 'Rp 72,000,000',
-            ],
-            [
-                'id' => 3,
-                'name' => 'UD Berkah Sejahtera',
-                'email' => 'berkah@gmail.com',
-                'phone' => '+62 813 8888 9999',
-                'tags' => ['Retail', 'Local'],
-                'total_spend' => 'Rp 65,000,000',
-            ],
-            [
-                'id' => 4,
-                'name' => 'Toko Elektronik Jaya',
-                'email' => 'elektronikjaya@yahoo.com',
-                'phone' => '+62 812 7777 6666',
-                'tags' => ['Retail'],
-                'total_spend' => 'Rp 48,000,000',
-            ],
-            [
-                'id' => 5,
-                'name' => 'PT Global Trading',
-                'email' => 'sales@globaltrading.co.id',
-                'phone' => '+62 21 5559999',
-                'tags' => ['Corporate', 'International'],
-                'total_spend' => 'Rp 38,000,000',
-            ],
-        ];
+        $customers = Customer::orderBy('name')->get();
 
         return view('sales.customers.index', compact('commandbar', 'customers'));
     }
@@ -72,6 +33,22 @@ class CustomerController extends Controller
         return view('sales.customers.create', compact('commandbar', 'available_tags'));
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'address' => 'nullable|string',
+            'tags' => 'array',
+            'notes' => 'nullable|string',
+        ]);
+
+        $id = now()->timestamp;
+
+        return redirect()->route('sales.customers.index')->with('success', 'Customer saved (demo) ID '.$id);
+    }
+
     public function edit($id)
     {
         $commandbar = [
@@ -79,18 +56,23 @@ class CustomerController extends Controller
             'showViewSwitch' => false,
         ];
 
-        $customer = [
-            'id' => $id,
-            'name' => 'PT Maju Jaya',
-            'email' => 'contact@majujaya.co.id',
-            'phone' => '+62 21 5551234',
-            'address' => 'Jl. Sudirman No. 123, Jakarta Pusat',
-            'tags' => ['Corporate', 'VIP'],
-            'notes' => 'Premium customer with excellent payment history.',
-        ];
-
+        $customer = Customer::findOrFail($id);
         $available_tags = ['Corporate', 'Retail', 'VIP', 'Local', 'International', 'Distributor'];
 
         return view('sales.customers.edit', compact('commandbar', 'customer', 'available_tags'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email',
+            'phone' => 'required|string',
+            'address' => 'nullable|string',
+            'tags' => 'array',
+            'notes' => 'nullable|string',
+        ]);
+
+        return redirect()->route('sales.customers.index')->with('success', 'Customer updated (demo) ID '.$id);
     }
 }

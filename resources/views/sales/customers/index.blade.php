@@ -35,17 +35,17 @@
                                     @foreach($customers as $customer)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $customer['name'] }}</div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $customer->name }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $customer['email'] }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $customer->email }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $customer['phone'] }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $customer->phone }}</div>
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="flex flex-wrap gap-1">
-                                                @foreach($customer['tags'] as $tag)
+                                                @foreach(($customer->tags ?? []) as $tag)
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
                                                     {{ $tag }}
                                                 </span>
@@ -53,11 +53,11 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $customer['total_spend'] }}</div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ currency($customer->total_spend, 'IDR') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             <div class="flex items-center gap-2">
-                                                <a href="{{ route('sales.customers.edit', $customer['id']) }}" class="text-[#5A8E74] hover:text-[#4a7a64]">
+                                                <a href="{{ route('sales.customers.edit', $customer->id) }}" class="text-[#5A8E74] hover:text-[#4a7a64]">
                                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                                     </svg>

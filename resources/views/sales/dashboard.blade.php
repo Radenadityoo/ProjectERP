@@ -58,19 +58,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {{-- Sales Trend Chart Placeholder --}}
+                        {{-- Sales Trend Chart --}}
                         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Sales Trend (6 Months)</h3>
-                            <div class="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg">
-                                <div class="text-center">
-                                    <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                                    </svg>
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">Chart visualization placeholder</p>
-                                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                                        Data: {{ implode(', ', $trend_data['labels']) }}
-                                    </p>
-                                </div>
+                            <div class="relative" style="height: 300px;">
+                                <canvas id="salesTrendChart"></canvas>
                             </div>
                         </div>
 
@@ -141,4 +133,66 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+    const salesCtx = document.getElementById('salesTrendChart').getContext('2d');
+    
+    fetch('{{ route("sales.dashboard.trends-json") }}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Sales Revenue (IDR)',
+                        data: data.data,
+                        backgroundColor: '#5A8E74',
+                        borderColor: '#5A8E74',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        hoverBackgroundColor: '#4a7a64',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937',
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937',
+                                callback: function(value) {
+                                    return 'Rp ' + (value / 1000000).toFixed(0) + 'M';
+                                }
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+</script>
+@endpush
 @endsection

@@ -91,6 +91,18 @@ class SalesOrderController extends Controller
         return view('sales.orders.create', compact('commandbar', 'customers', 'products'));
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required',
+            'order_date' => 'required|date',
+        ]);
+
+        $id = now()->timestamp;
+
+        return redirect()->route('sales.orders.index')->with('success', 'Sales order saved (demo) ID '.$id);
+    }
+
     public function edit($id)
     {
         $commandbar = [
@@ -127,22 +139,16 @@ class SalesOrderController extends Controller
             ],
         ];
 
-        $customers = [
-            ['id' => 1, 'name' => 'PT Maju Jaya'],
-            ['id' => 2, 'name' => 'CV Sentosa Makmur'],
-            ['id' => 3, 'name' => 'UD Berkah Sejahtera'],
-            ['id' => 4, 'name' => 'Toko Elektronik Jaya'],
-            ['id' => 5, 'name' => 'PT Global Trading'],
-        ];
-
-        $products = [
-            ['id' => 1, 'name' => 'Laptop Dell Latitude', 'price' => 12000000],
-            ['id' => 2, 'name' => 'Monitor LG 24"', 'price' => 2500000],
-            ['id' => 3, 'name' => 'Keyboard Mechanical', 'price' => 850000],
-            ['id' => 4, 'name' => 'Mouse Wireless', 'price' => 350000],
-            ['id' => 5, 'name' => 'Headset Gaming', 'price' => 1200000],
-        ];
-
         return view('sales.orders.edit', compact('commandbar', 'order', 'customers', 'products'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required',
+            'order_date' => 'required|date',
+        ]);
+
+        return redirect()->route('sales.orders.index')->with('success', 'Sales order updated (demo) ID '.$id);
     }
 }

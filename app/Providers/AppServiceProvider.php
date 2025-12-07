@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,6 +12,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $helpers = app_path('Support/helpers.php');
+        if (file_exists($helpers)) {
+            require_once $helpers;
+        }
         //
     }
 
@@ -19,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        Blade::directive('currency', function ($expression) {
+            return "<?php echo currency($expression); ?>";
+        });
         //
     }
 }

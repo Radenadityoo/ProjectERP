@@ -20,7 +20,7 @@
 
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
             <div class="text-sm text-gray-500 dark:text-gray-400">Total purchased</div>
-            <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">${{ number_format($stats['total_purchased'], 0) }}</div>
+            <div class="mt-2 text-3xl font-bold text-gray-900 dark:text-gray-100">{{ currency($stats['total_purchased'], 'IDR') }}</div>
             <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">+12% MoM</div>
         </div>
 
@@ -33,7 +33,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
             <div class="text-sm text-gray-500 dark:text-gray-400">Top vendor</div>
             <div class="mt-2 text-xl font-bold text-gray-900 dark:text-gray-100">{{ $top_vendors[0]['name'] }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${{ number_format($top_vendors[0]['total'], 0) }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ currency($top_vendors[0]['total'], 'IDR') }}</div>
         </div>
     </div>
 
@@ -41,17 +41,95 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Purchase Trends</h3>
-            <select class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100">
-                <option>Last 6 months</option>
-                <option>Last 12 months</option>
+            <select id="trendsTimeframe" class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100">
+                <option value="6">Last 6 months</option>
+                <option value="12">Last 12 months</option>
             </select>
         </div>
-        <div class="h-56 flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
-            <div class="w-full h-40 bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-xl flex items-center justify-center">
-                Chart placeholder (integrate with Chart.js or ApexCharts)
-            </div>
+        <div class="relative" style="height: 300px;">
+            <canvas id="purchaseTrendsChart"></canvas>
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <script>
+        const ctx = document.getElementById('purchaseTrendsChart').getContext('2d');
+        let purchaseTrendsChart = null;
+
+        function loadChart(timeframe = 6) {
+            fetch('{{ route("purchase.dashboard.trends-json") }}?months=' + timeframe)
+                .then(response => response.json())
+                .then(data => {
+                    if (purchaseTrendsChart) {
+                        purchaseTrendsChart.destroy();
+                    }
+
+                    purchaseTrendsChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                label: 'Purchase Amount (IDR)',
+                                data: data.data,
+                                borderColor: '#5A8E74',
+                                backgroundColor: 'rgba(90, 142, 116, 0.1)',
+                                tension: 0.4,
+                                fill: true,
+                                pointRadius: 5,
+                                pointHoverRadius: 7,
+                                pointBackgroundColor: '#5A8E74',
+                                pointBorderColor: '#fff',
+                                pointBorderWidth: 2,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    labels: {
+                                        color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937',
+                                        font: { size: 12 }
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937',
+                                        callback: function(value) {
+                                            return 'Rp ' + (value / 1000000).toFixed(0) + 'M';
+                                        }
+                                    },
+                                    grid: {
+                                        color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937'
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        document.getElementById('trendsTimeframe').addEventListener('change', function() {
+            loadChart(this.value);
+        });
+
+        // Load initial chart
+        loadChart(6);
+    </script>
+    @endpush
 
     {{-- Top Vendors & Recent Orders --}}
     <div class="grid md:grid-cols-2 gap-4">
@@ -62,9 +140,9 @@
                     <div class="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-gray-700 last:border-b-0">
                         <div>
                             <div class="font-medium text-gray-900 dark:text-gray-100">{{ $vendor['name'] }}</div>
-                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $vendor['total'] }} orders</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">Top supplier</div>
                         </div>
-                        <div class="text-right font-semibold text-gray-900 dark:text-gray-100">${{ number_format($vendor['total'], 0) }}</div>
+                        <div class="text-right font-semibold text-gray-900 dark:text-gray-100">{{ currency($vendor['total'], 'IDR') }}</div>
                     </div>
                 @endforeach
             </div>

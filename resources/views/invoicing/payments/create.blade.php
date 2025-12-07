@@ -19,7 +19,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {{-- Main Form --}}
         <div class="lg:col-span-2">
-            <form method="POST" action="#" class="space-y-6">
+            <form method="POST" action="{{ route('invoicing.payments.store') }}" class="space-y-6">
                 @csrf
 
                 {{-- Payment Information --}}

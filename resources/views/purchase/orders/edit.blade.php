@@ -16,34 +16,35 @@
         <div class="space-y-3">
             <div>
                 <label class="text-sm text-gray-600 dark:text-gray-400">Vendor</label>
-                <select class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                    <option selected>Acme Supplies</option>
-                    <option>Northwind Traders</option>
-                    <option>Globex</option>
+                <select name="vendor_id" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                    @foreach($vendors as $vendor)
+                        <option value="{{ $vendor->id }}" @if($po->vendor_id == $vendor->id) selected @endif>{{ $vendor->name }}</option>
+                    @endforeach
                 </select>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-sm text-gray-600 dark:text-gray-400">Order Date</label>
-                    <input type="date" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" value="2025-12-08">
+                    <input type="date" name="order_date" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" value="{{ $po->order_date?->format('Y-m-d') }}">
                 </div>
                 <div>
                     <label class="text-sm text-gray-600 dark:text-gray-400">Reference</label>
-                    <input type="text" placeholder="Internal reference" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" value="REF-PO-0012">
+                    <input type="text" name="reference" placeholder="Internal reference" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" value="{{ $po->reference }}">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="text-sm text-gray-600 dark:text-gray-400">Currency</label>
-                    <select class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                        <option selected>USD</option>
-                        <option>EUR</option>
+                    <select name="currency" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+                        <option value="IDR" @if($po->currency == 'IDR') selected @endif>IDR</option>
+                        <option value="USD" @if($po->currency == 'USD') selected @endif>USD</option>
+                        <option value="EUR" @if($po->currency == 'EUR') selected @endif>EUR</option>
                     </select>
                 </div>
                 <div>
                     <label class="text-sm text-gray-600 dark:text-gray-400">Status</label>
                     <div class="mt-1 inline-flex px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200">
-                        Draft
+                        {{ $po->status }}
                     </div>
                 </div>
             </div>
@@ -52,15 +53,15 @@
         <div class="bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-4 space-y-2">
             <div class="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
                 <span>Untaxed Amount</span>
-                <span class="font-semibold text-gray-900 dark:text-gray-100">$1,550.00</span>
+                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ currency(1550000, 'IDR') }}</span>
             </div>
             <div class="flex items-center justify-between text-sm text-gray-700 dark:text-gray-300">
                 <span>Taxes</span>
-                <span class="font-semibold text-gray-900 dark:text-gray-100">$155.00</span>
+                <span class="font-semibold text-gray-900 dark:text-gray-100">{{ currency(155000, 'IDR') }}</span>
             </div>
             <div class="border-t border-gray-200 dark:border-gray-700 pt-3 flex items-center justify-between text-base font-bold text-gray-900 dark:text-gray-100">
                 <span>Total</span>
-                <span>$1,705.00</span>
+                <span>{{ currency(1705000, 'IDR') }}</span>
             </div>
         </div>
     </div>
@@ -85,30 +86,28 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                    @foreach($lines as $line)
+                    @foreach($po->items as $line)
                         <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
                             <td class="px-4 py-3">
-                                <select class="w-full px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm">
-                                    <option selected>{{ $line['product'] }}</option>
-                                    <option>Motor Assembly</option>
+                                <select name="product_id[]" class="w-full px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm">
+                                    @foreach($products as $product)
+                                        <option value="{{ $product->id }}" @if($line->product_id == $product->id) selected @endif>{{ $product->name }}</option>
+                                    @endforeach
                                 </select>
                             </td>
                             <td class="px-4 py-3">
-                                <input type="text" value="{{ $line['desc'] }}" class="w-full px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
+                                <input type="text" name="description[]" value="{{ $line->description }}" class="w-full px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
                             </td>
                             <td class="px-4 py-3">
-                                <input type="number" value="{{ $line['qty'] }}" class="w-20 px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
+                                <input type="number" name="quantity[]" value="{{ $line->quantity }}" class="w-20 px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
                             </td>
                             <td class="px-4 py-3">
-                                <input type="number" value="{{ $line['price'] }}" class="w-24 px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
+                                <input type="number" name="unit_price[]" value="{{ $line->unit_price }}" class="w-24 px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
                             </td>
                             <td class="px-4 py-3">
-                                <select class="w-full px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm">
-                                    <option selected>{{ $line['tax'] }}</option>
-                                    <option>VAT 0%</option>
-                                </select>
+                                <input type="text" name="tax_rate[]" value="{{ $line->tax_rate }}" class="w-full px-2 py-1.5 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 text-sm" />
                             </td>
-                            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">${{ number_format($line['subtotal'], 2) }}</td>
+                            <td class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">{{ currency($line->subtotal, $po->currency ?? 'IDR') }}</td>
                             <td class="px-4 py-3 text-right">
                                 <button class="text-red-600 dark:text-red-400 hover:underline text-sm" onclick="removeOrderLine(this)">Remove</button>
                             </td>

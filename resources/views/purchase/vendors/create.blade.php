@@ -2,15 +2,16 @@
 
 @section('content')
 <div class="p-6 max-w-4xl space-y-6">
-    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 space-y-4">
+    <form method="POST" action="{{ route('purchase.vendors.store') }}" class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-5 space-y-4">
+        @csrf
         <div class="grid md:grid-cols-2 gap-4">
             <div>
                 <label class="text-sm text-gray-600 dark:text-gray-400">Vendor Name</label>
-                <input type="text" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="Vendor name">
+                <input type="text" name="name" required class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="Vendor name">
             </div>
             <div>
                 <label class="text-sm text-gray-600 dark:text-gray-400">Email</label>
-                <input type="email" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="vendor@email.com">
+                <input type="email" name="email" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="vendor@email.com">
             </div>
             <div>
                 <label class="text-sm text-gray-600 dark:text-gray-400">Phone</label>
@@ -44,21 +45,14 @@
 
         <div>
             <label class="text-sm text-gray-600 dark:text-gray-400">Notes</label>
-            <textarea rows="3" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="Internal notes"></textarea>
+            <textarea name="notes" rows="3" class="w-full mt-1 px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100" placeholder="Internal notes"></textarea>
         </div>
     </div>
 
     <div class="flex gap-3">
         <a href="{{ route('purchase.vendors.index') }}" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium">Cancel</a>
-        <button class="px-4 py-2 rounded-xl bg-erp text-white hover:bg-opacity-90 text-sm font-semibold" onclick="saveVendor()">Save</button>
+        <button type="submit" class="px-4 py-2 rounded-xl bg-erp text-white hover:bg-opacity-90 text-sm font-semibold">Save</button>
     </div>
+    </form>
 </div>
-
-@push('scripts')
-<script>
-    function saveVendor() {
-        alert('Vendor saved (demo)');
-    }
-</script>
-@endpush
 @endsection

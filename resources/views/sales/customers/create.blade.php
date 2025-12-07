@@ -3,7 +3,7 @@
 @section('content')
 <div class="space-y-6">
                     <div class="max-w-3xl mx-auto">
-                        <form action="#" method="POST">
+                        <form action="{{ route('sales.customers.store') }}" method="POST">
                             @csrf
                             
                             <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">

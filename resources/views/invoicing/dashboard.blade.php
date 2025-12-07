@@ -58,19 +58,11 @@
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {{-- Invoice Trend Chart Placeholder --}}
+        {{-- Invoice Trend Chart --}}
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Invoice Trend (6 Months)</h3>
-            <div class="h-64 flex items-center justify-center bg-gray-50 dark:bg-gray-900 rounded-lg">
-                <div class="text-center">
-                    <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
-                    </svg>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Chart visualization placeholder</p>
-                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
-                        Data: {{ implode(', ', $trend_data['labels']) }}
-                    </p>
-                </div>
+            <div class="relative" style="height: 300px;">
+                <canvas id="invoiceTrendChart"></canvas>
             </div>
         </div>
 
@@ -146,5 +138,68 @@
             </a>
         </div>
     </div>
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<script>
+    const invoiceCtx = document.getElementById('invoiceTrendChart').getContext('2d');
+
+    fetch('{{ route("invoicing.dashboard.trends-json") }}')
+        .then(response => response.json())
+        .then(data => {
+            new Chart(invoiceCtx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Invoice Amount (IDR)',
+                        data: data.data,
+                        borderColor: '#5A8E74',
+                        backgroundColor: 'rgba(90, 142, 116, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        pointBackgroundColor: '#5A8E74',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937',
+                                font: { size: 12 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937',
+                                callback: value => 'Rp ' + (value / 1000000).toFixed(0) + 'M',
+                            },
+                            grid: {
+                                color: document.documentElement.classList.contains('dark') ? '#374151' : '#e5e7eb'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: document.documentElement.classList.contains('dark') ? '#d1d5db' : '#1f2937'
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        });
+</script>
+@endpush
 </div>
 @endsection

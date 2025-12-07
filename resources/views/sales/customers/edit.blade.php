@@ -3,7 +3,7 @@
 @section('content')
 <div class="space-y-6">
                     <div class="max-w-3xl mx-auto">
-                        <form action="#" method="POST">
+                        <form action="{{ route('sales.customers.update', $customer['id']) }}" method="POST">
                             @csrf
                             @method('PUT')
                             

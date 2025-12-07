@@ -105,6 +105,19 @@ class InvoiceController extends Controller
         return view('invoicing.invoices.create', compact('commandbar', 'customers', 'products', 'journals'));
     }
 
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required',
+            'invoice_date' => 'required|date',
+            'due_date' => 'required|date',
+        ]);
+
+        $id = now()->timestamp;
+
+        return redirect()->route('invoicing.invoices.index')->with('success', 'Invoice saved (demo) ID '.$id);
+    }
+
     public function edit($id)
     {
         $commandbar = [
@@ -141,27 +154,17 @@ class InvoiceController extends Controller
             ],
         ];
 
-        $customers = [
-            ['id' => 1, 'name' => 'PT Maju Jaya'],
-            ['id' => 2, 'name' => 'CV Sentosa Makmur'],
-            ['id' => 3, 'name' => 'UD Berkah Sejahtera'],
-            ['id' => 4, 'name' => 'Toko Elektronik Jaya'],
-            ['id' => 5, 'name' => 'PT Global Trading'],
-        ];
-
-        $products = [
-            ['id' => 1, 'name' => 'Laptop Dell Latitude', 'price' => 12000000],
-            ['id' => 2, 'name' => 'Monitor LG 24"', 'price' => 2500000],
-            ['id' => 3, 'name' => 'Keyboard Mechanical', 'price' => 850000],
-            ['id' => 4, 'name' => 'Mouse Wireless', 'price' => 350000],
-            ['id' => 5, 'name' => 'Headset Gaming', 'price' => 1200000],
-        ];
-
-        $journals = [
-            ['id' => 1, 'name' => 'Customer Invoices'],
-            ['id' => 2, 'name' => 'Credit Notes'],
-        ];
-
         return view('invoicing.invoices.edit', compact('commandbar', 'invoice', 'customers', 'products', 'journals'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->validate([
+            'customer_id' => 'required',
+            'invoice_date' => 'required|date',
+            'due_date' => 'required|date',
+        ]);
+
+        return redirect()->route('invoicing.invoices.index')->with('success', 'Invoice updated (demo) ID '.$id);
     }
 }

@@ -7,7 +7,8 @@
             <div class="flex items-center gap-3">
                 <div class="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden flex items-center justify-center">
                     @if($employee->profile_photo_path)
-                        <img src="{{ Storage::disk('public')->url($employee->profile_photo_path) }}" alt="Profile Photo" class="w-full h-full object-cover">
+                        {{-- @phpstan-ignore-next-line --}}
+                        <img src="{{ asset('storage/' . $employee->profile_photo_path) }}" alt="Profile Photo" class="w-full h-full object-cover">
                     @else
                         <img src="https://ui-avatars.com/api/?name={{ urlencode($employee->name) }}&background=0D8ABC&color=fff" alt="Profile Photo" class="w-full h-full object-cover">
                     @endif
@@ -137,7 +138,8 @@
                                         <td class="px-4 py-2 text-gray-900 dark:text-white">{{ $doc->uploaded_at?->format('Y-m-d H:i') }}</td>
                                         <td class="px-4 py-2">
                                             <div class="flex items-center gap-3">
-                                                <a href="{{ Storage::disk('public')->url($doc->file_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">View</a>
+                                                {{-- @phpstan-ignore-next-line --}}
+                                                <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">View</a>
                                                 <form method="POST" action="{{ route('employees.documents.destroy', [$employee, $doc]) }}" onsubmit="return confirm('Delete this document?');">
                                                     @csrf
                                                     @method('DELETE')
