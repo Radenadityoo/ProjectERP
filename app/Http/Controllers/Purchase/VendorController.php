@@ -9,11 +9,22 @@ class VendorController extends Controller
 {
     public function index(Request $request)
     {
-        $vendors = \App\Models\Vendor::all();
+        $query = \App\Models\Vendor::query();
+
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $vendors = $query->orderBy('name')->get();
         $commandbar = [
             'title' => 'Vendors',
             'count' => $vendors->count(),
             'showViewSwitch' => false,
+            'searchParam' => 'q',
         ];
         return view('purchase.vendors.index', compact('vendors', 'commandbar'));
     }

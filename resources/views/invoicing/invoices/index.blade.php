@@ -16,10 +16,10 @@
     <div class="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-gray-100 dark:border-gray-700">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <input type="text" placeholder="Search by invoice number or customer..." class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
+                    <input type="text" id="invoice-search" placeholder="Search by invoice number or customer..." class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
             </div>
             <div>
-                <select class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
+                    <select id="status-filter" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
                     <option value="">All Statuses</option>
                     <option value="draft">Draft</option>
                     <option value="posted">Posted</option>
@@ -28,7 +28,7 @@
                 </select>
             </div>
             <div>
-                <select class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
+                <select id="customer-filter" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
                     <option value="">All Customers</option>
                     <option value="1">PT Maju Jaya</option>
                     <option value="2">CV Sentosa Makmur</option>
@@ -53,9 +53,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-700" id="invoices-tbody">
                     @foreach($invoices as $invoice)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
+                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-900 invoice-row" data-invoice="{{ $invoice['number'] }}" data-customer="{{ $invoice['customer'] }}" data-status="{{ strtolower($invoice['status']) }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $invoice['number'] }}</div>
                         </td>
@@ -107,4 +107,37 @@
         </div>
     </div>
 </div>
+
+    @push('scripts')
+    <script>
+        (function() {
+            const searchInput = document.getElementById('invoice-search');
+            const statusFilter = document.getElementById('status-filter');
+            const customerFilter = document.getElementById('customer-filter');
+            const rows = document.querySelectorAll('.invoice-row');
+
+            function filterRows() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const statusValue = statusFilter.value.toLowerCase();
+                const customerValue = customerFilter.value.toLowerCase();
+
+                rows.forEach(row => {
+                    const invoice = row.dataset.invoice.toLowerCase();
+                    const customer = row.dataset.customer.toLowerCase();
+                    const status = row.dataset.status.toLowerCase();
+
+                    const matchesSearch = invoice.includes(searchTerm) || customer.includes(searchTerm);
+                    const matchesStatus = !statusValue || status === statusValue;
+                    const matchesCustomer = !customerValue || customer.includes(customerValue);
+
+                    row.style.display = matchesSearch && matchesStatus && matchesCustomer ? '' : 'none';
+                });
+            }
+
+            searchInput.addEventListener('input', filterRows);
+            statusFilter.addEventListener('change', filterRows);
+            customerFilter.addEventListener('change', filterRows);
+        })();
+    </script>
+    @endpush
 @endsection

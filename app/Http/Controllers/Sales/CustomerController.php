@@ -9,14 +9,25 @@ use App\Models\Customer;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Customer::query();
+
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
+            });
+        }
+
+        $customers = $query->orderBy('name')->get();
+        
         $commandbar = [
             'title' => 'Customers',
             'showViewSwitch' => false,
+            'searchParam' => 'q',
         ];
-
-        $customers = Customer::orderBy('name')->get();
 
         return view('sales.customers.index', compact('commandbar', 'customers'));
     }

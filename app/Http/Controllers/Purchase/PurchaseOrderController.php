@@ -9,11 +9,23 @@ class PurchaseOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = \App\Models\PurchaseOrder::with('vendor')->orderByDesc('order_date')->get();
+        $query = \App\Models\PurchaseOrder::with('vendor');
+
+        if ($search = $request->input('q')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('reference', 'like', "%{$search}%")
+                    ->orWhereHas('vendor', function ($v) use ($search) {
+                        $v->where('name', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        $orders = $query->orderByDesc('order_date')->get();
         $commandbar = [
             'title' => 'Purchase Orders',
             'count' => $orders->count(),
             'showViewSwitch' => false,
+            'searchParam' => 'q',
         ];
         return view('purchase.orders.index', compact('orders', 'commandbar'));
     }

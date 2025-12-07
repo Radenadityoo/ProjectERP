@@ -12,6 +12,7 @@ class InvoiceController extends Controller
         $commandbar = [
             'title' => 'Invoices',
             'showViewSwitch' => false,
+            'searchParam' => 'q',
         ];
 
         $invoices = [

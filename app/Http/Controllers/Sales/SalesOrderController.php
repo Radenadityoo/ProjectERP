@@ -12,6 +12,7 @@ class SalesOrderController extends Controller
         $commandbar = [
             'title' => 'Sales Orders',
             'showViewSwitch' => false,
+            'searchParam' => 'q',
         ];
 
         $orders = [
