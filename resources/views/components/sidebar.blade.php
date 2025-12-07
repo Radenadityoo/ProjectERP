@@ -46,6 +46,11 @@
                 $activeSalesDashboard = request()->routeIs('sales.dashboard');
                 $activeSalesOrders = request()->routeIs('sales.orders.*');
                 $activeSalesCustomers = request()->routeIs('sales.customers.*');
+
+                // invoicing actives
+                $activeInvoicingDashboard = request()->routeIs('invoicing.dashboard');
+                $activeInvoicingInvoices = request()->routeIs('invoicing.invoices.*');
+                $activeInvoicingPayments = request()->routeIs('invoicing.payments.*');
             @endphp
 
             <div class="module-section mb-2" data-section="modules-parent">
@@ -199,6 +204,36 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeSalesCustomers ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Customers</span>
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div class="module-section mb-2" data-section="invoicing">
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
+                            <span>Invoicing</span>
+                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+
+                        <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
+                            <a href="{{ route('invoicing.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvoicingDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
+                                </span>
+                                <span class="text-sm {{ $activeInvoicingDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Invoicing Dashboard</span>
+                            </a>
+
+                            <a href="{{ route('invoicing.invoices.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingInvoices ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvoicingInvoices ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+                                </span>
+                                <span class="text-sm {{ $activeInvoicingInvoices ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Invoices</span>
+                            </a>
+
+                            <a href="{{ route('invoicing.payments.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingPayments ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvoicingPayments ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                                </span>
+                                <span class="text-sm {{ $activeInvoicingPayments ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Payments</span>
                             </a>
                         </nav>
                     </div>
