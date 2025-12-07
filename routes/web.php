@@ -117,4 +117,21 @@ Route::prefix('sales')
         Route::get('customers/{id}/edit', [\App\Http\Controllers\Sales\CustomerController::class, 'edit'])->name('customers.edit');
     });
 
+// Invoicing module routes
+Route::prefix('invoicing')
+    ->name('invoicing.')
+    ->middleware(['auth'])
+    ->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Invoicing\InvoiceDashboardController::class, 'index'])->name('dashboard');
+        
+        // Invoices
+        Route::get('invoices', [\App\Http\Controllers\Invoicing\InvoiceController::class, 'index'])->name('invoices.index');
+        Route::get('invoices/create', [\App\Http\Controllers\Invoicing\InvoiceController::class, 'create'])->name('invoices.create');
+        Route::get('invoices/{id}/edit', [\App\Http\Controllers\Invoicing\InvoiceController::class, 'edit'])->name('invoices.edit');
+        
+        // Payments
+        Route::get('payments', [\App\Http\Controllers\Invoicing\PaymentController::class, 'index'])->name('payments.index');
+        Route::get('payments/create', [\App\Http\Controllers\Invoicing\PaymentController::class, 'create'])->name('payments.create');
+    });
+
 require __DIR__.'/auth.php';
