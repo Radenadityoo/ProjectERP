@@ -134,4 +134,14 @@ Route::prefix('invoicing')
         Route::get('payments/create', [\App\Http\Controllers\Invoicing\PaymentController::class, 'create'])->name('payments.create');
     });
 
+// Employees module routes
+Route::middleware(['auth'])->group(function () {
+    Route::resource('employees', \App\Http\Controllers\EmployeeController::class);
+
+    Route::post('employees/{employee}/documents', [\App\Http\Controllers\EmployeeDocumentController::class, 'store'])
+        ->name('employees.documents.store');
+    Route::delete('employees/{employee}/documents/{document}', [\App\Http\Controllers\EmployeeDocumentController::class, 'destroy'])
+        ->name('employees.documents.destroy');
+});
+
 require __DIR__.'/auth.php';

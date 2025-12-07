@@ -110,6 +110,9 @@ class DatabaseSeeder extends Seeder
                 $mo
             );
         }
+
+        // Employees
+        $this->call(EmployeeSeeder::class);
     }
 }
 
