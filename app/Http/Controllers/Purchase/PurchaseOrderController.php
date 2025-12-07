@@ -37,9 +37,10 @@ class PurchaseOrderController extends Controller
             'order_date' => 'required|date',
         ]);
 
-        $id = now()->timestamp;
+        $data['status'] = 'Draft';
+        $po = \App\Models\PurchaseOrder::create($data);
 
-        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order saved (demo) ID '.$id);
+        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order saved ID '.$po->id);
     }
 
     public function edit($id)
@@ -63,6 +64,9 @@ class PurchaseOrderController extends Controller
             'status' => 'in:Draft,Waiting,Purchase,Received',
         ]);
 
-        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated (demo) ID '.$id);
+        $po = \App\Models\PurchaseOrder::findOrFail($id);
+        $po->update($data);
+
+        return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated ID '.$id);
     }
 }
