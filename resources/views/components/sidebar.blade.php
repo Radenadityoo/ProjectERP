@@ -36,6 +36,11 @@
                 $activeInvDeliveries = request()->routeIs('admin.inventory.deliveries.*');
                 $activeInvTransfers = request()->routeIs('admin.inventory.transfers.*');
                 $activeInvAdjustments = request()->routeIs('admin.inventory.adjustments.*');
+
+                // purchase actives
+                $activePurchaseDashboard = request()->routeIs('purchase.dashboard');
+                $activePurchaseOrders = request()->routeIs('purchase.orders.*');
+                $activePurchaseVendors = request()->routeIs('purchase.vendors.*');
             @endphp
 
             <div class="module-section mb-2" data-section="modules-parent">
@@ -129,6 +134,36 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M12 2v20"/><path d="M2 12h20"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvAdjustments ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Adjustments</span>
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div class="module-section mb-2" data-section="purchase">
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
+                            <span>Purchase</span>
+                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </button>
+
+                        <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
+                            <a href="{{ route('purchase.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activePurchaseDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
+                                </span>
+                                <span class="text-sm {{ $activePurchaseDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Purchase Dashboard</span>
+                            </a>
+
+                            <a href="{{ route('purchase.orders.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activePurchaseOrders ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+                                </span>
+                                <span class="text-sm {{ $activePurchaseOrders ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Purchase Orders</span>
+                            </a>
+
+                            <a href="{{ route('purchase.vendors.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseVendors ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activePurchaseVendors ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+                                </span>
+                                <span class="text-sm {{ $activePurchaseVendors ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Vendors</span>
                             </a>
                         </nav>
                     </div>
