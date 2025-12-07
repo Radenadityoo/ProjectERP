@@ -1,0 +1,60 @@
+@extends('layouts.admin')
+
+@section('content')
+    <div class="p-6">
+        <div class="mb-2">
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Bill of Materials</h1>
+        </div>
+        <div class="mb-4">
+            <a href="{{ route('admin.bom.create') }}" class="inline-flex items-center px-4 py-2 bg-erp text-white rounded shadow hover:bg-opacity-90">Create BoM</a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 shadow rounded">
+            <div class="p-4">
+                <form method="get" class="mb-4">
+                    <input type="search" name="q" value="{{ request('q') }}" placeholder="Search BoM" class="w-full border rounded p-2 bg-gray-50 dark:bg-gray-900" />
+                </form>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm">
+                        <thead class="text-left text-xs text-gray-500 uppercase">
+                            <tr>
+                                <th class="px-3 py-2">Name</th>
+                                <th class="px-3 py-2">Product</th>
+                                <th class="px-3 py-2">Quantity</th>
+                                <th class="px-3 py-2">Total Cost</th>
+                                <th class="px-3 py-2">Created</th>
+                                <th class="px-3 py-2">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            @foreach($items as $item)
+                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-900">
+                                    <td class="px-3 py-2">{{ $item->name }}</td>
+                                    <td class="px-3 py-2">{{ optional($item->product)->name }}</td>
+                                    <td class="px-3 py-2">{{ $item->quantity }}</td>
+                                    <td class="px-3 py-2">{{ number_format($item->total_cost, 2) }}</td>
+                                    <td class="px-3 py-2">{{ $item->created_at->format('Y-m-d') }}</td>
+                                    <td class="px-3 py-2">
+                                        <div class="flex items-center gap-2">
+                                            <a href="{{ route('admin.bom.show', $item) }}" class="text-blue-600 dark:text-blue-400 hover:underline">View</a>
+                                            <a href="{{ route('admin.bom.edit', $item) }}" class="text-erp hover:underline">Edit</a>
+                                            <form action="{{ route('admin.bom.destroy', $item) }}" method="post" class="inline" onsubmit="return confirm('Delete this BoM?');">
+                                                @csrf @method('delete')
+                                                <button class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4">
+                    {{ $items->links() }}
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
