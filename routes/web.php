@@ -99,4 +99,22 @@ Route::prefix('purchase')
         Route::get('vendors/{id}/edit', [\App\Http\Controllers\Purchase\VendorController::class, 'edit'])->name('vendors.edit');
     });
 
+// Sales module routes
+Route::prefix('sales')
+    ->name('sales.')
+    ->middleware(['auth'])
+    ->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Sales\SalesDashboardController::class, 'index'])->name('dashboard');
+        
+        // Sales Orders
+        Route::get('orders', [\App\Http\Controllers\Sales\SalesOrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/create', [\App\Http\Controllers\Sales\SalesOrderController::class, 'create'])->name('orders.create');
+        Route::get('orders/{id}/edit', [\App\Http\Controllers\Sales\SalesOrderController::class, 'edit'])->name('orders.edit');
+        
+        // Customers
+        Route::get('customers', [\App\Http\Controllers\Sales\CustomerController::class, 'index'])->name('customers.index');
+        Route::get('customers/create', [\App\Http\Controllers\Sales\CustomerController::class, 'create'])->name('customers.create');
+        Route::get('customers/{id}/edit', [\App\Http\Controllers\Sales\CustomerController::class, 'edit'])->name('customers.edit');
+    });
+
 require __DIR__.'/auth.php';
