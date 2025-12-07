@@ -99,5 +99,4 @@ Route::prefix('purchase')
         Route::get('vendors/{id}/edit', [\App\Http\Controllers\Purchase\VendorController::class, 'edit'])->name('vendors.edit');
     });
 
-
 require __DIR__.'/auth.php';

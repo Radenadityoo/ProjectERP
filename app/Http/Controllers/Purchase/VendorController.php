@@ -9,7 +9,7 @@ class VendorController extends Controller
 {
     public function index(Request $request)
     {
-        $vendors = [
+        $items = [
             ['id' => 1, 'name' => 'Acme Supplies', 'email' => 'sales@acme.com', 'phone' => '+1 555 1200', 'terms' => '30 days', 'tags' => ['Preferred','Hardware'], 'spend' => 52300],
             ['id' => 2, 'name' => 'Northwind Traders', 'email' => 'contact@northwind.com', 'phone' => '+1 555 9988', 'terms' => '15 days', 'tags' => ['Electronics'], 'spend' => 38600],
             ['id' => 3, 'name' => 'Globex', 'email' => 'info@globex.com', 'phone' => '+44 20 1234', 'terms' => '45 days', 'tags' => ['Overseas'], 'spend' => 28500],
@@ -17,11 +17,11 @@ class VendorController extends Controller
 
         $commandbar = [
             'title' => 'Vendors',
-            'count' => count($vendors),
+            'count' => count($items),
             'showViewSwitch' => false,
         ];
 
-        return view('purchase.vendors.index', compact('vendors', 'commandbar'));
+        return view('purchase.vendors.index', compact('items', 'commandbar'));
     }
 
     public function create()
@@ -43,9 +43,9 @@ class VendorController extends Controller
             'email' => 'sales@acme.com',
             'phone' => '+1 555 1200',
             'address' => '123 Industrial Ave, Tech City, TC 12345',
-            'terms' => '30 days',
+            'terms' => '30',
+            'notes' => 'Preferred vendor for hardware supplies',
             'tags' => ['Preferred', 'Hardware'],
-            'notes' => 'Reliable supplier, good quality products.',
         ];
 
         $commandbar = [
