@@ -81,5 +81,23 @@ Route::prefix('admin')
         });
     });
 
+// Purchase module routes
+Route::prefix('purchase')
+    ->name('purchase.')
+    ->middleware(['auth'])
+    ->group(function () {
+        Route::get('dashboard', [\App\Http\Controllers\Purchase\PurchaseDashboardController::class, 'index'])->name('dashboard');
+        
+        // Purchase Orders
+        Route::get('orders', [\App\Http\Controllers\Purchase\PurchaseOrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/create', [\App\Http\Controllers\Purchase\PurchaseOrderController::class, 'create'])->name('orders.create');
+        Route::get('orders/{id}/edit', [\App\Http\Controllers\Purchase\PurchaseOrderController::class, 'edit'])->name('orders.edit');
+        
+        // Vendors
+        Route::get('vendors', [\App\Http\Controllers\Purchase\VendorController::class, 'index'])->name('vendors.index');
+        Route::get('vendors/create', [\App\Http\Controllers\Purchase\VendorController::class, 'create'])->name('vendors.create');
+        Route::get('vendors/{id}/edit', [\App\Http\Controllers\Purchase\VendorController::class, 'edit'])->name('vendors.edit');
+    });
+
 
 require __DIR__.'/auth.php';
