@@ -119,4 +119,90 @@ class PaymentController extends Controller
             ->route('invoicing.payments.index')
             ->with('success', 'Payment registered successfully.');
     }
+
+    public function show($id)
+    {
+        $payment = Payment::with('customer', 'invoice')->findOrFail($id);
+
+        $commandbar = [
+            'title' => 'View Payment',
+            'showViewSwitch' => false,
+        ];
+
+        return view('invoicing.payments.show', compact('commandbar', 'payment'));
+    }
+
+    public function edit($id)
+    {
+        $payment = Payment::findOrFail($id);
+
+        $commandbar = [
+            'title' => 'Edit Payment',
+            'showViewSwitch' => false,
+        ];
+
+        $customers = Customer::orderBy('name')->get();
+        $invoices = Invoice::with('customer')
+            ->whereIn('status', ['posted', 'partial', 'paid'])
+            ->orderBy('invoice_date', 'desc')
+            ->get()
+            ->map(function($inv) {
+                return [
+                    'id' => $inv->id,
+                    'number' => $inv->number,
+                    'customer_id' => $inv->customer_id,
+                    'amount_due' => ($inv->total_base ?? $inv->total) - ($inv->amount_paid_base ?? $inv->amount_paid ?? 0),
+                ];
+            });
+
+        $journals = [
+            ['id' => 1, 'name' => 'Bank - BCA'],
+            ['id' => 2, 'name' => 'Bank - Mandiri'],
+            ['id' => 3, 'name' => 'Cash'],
+        ];
+
+        return view('invoicing.payments.edit', compact('commandbar', 'payment', 'customers', 'invoices', 'journals'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $payment = Payment::findOrFail($id);
+
+        $data = $request->validate([
+            'payment_number' => 'required|string|unique:payments,payment_number,' . $id,
+            'payment_date' => 'required|date',
+            'customer_id' => 'required|exists:customers,id',
+            'invoice_id' => 'nullable|exists:invoices,id',
+            'invoice_ref' => 'nullable|string',
+            'journal' => 'required|string',
+            'payment_method' => 'required|string',
+            'amount' => 'required|numeric|min:0',
+            'currency_code' => 'nullable|string|size:3',
+            'memo' => 'nullable|string',
+        ]);
+
+        $currencyCode = strtoupper($data['currency_code'] ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
+        $amountBase = convert_to_base($data['amount'], $currencyCode);
+
+        $data['currency_code'] = $currencyCode;
+        $data['exchange_rate'] = $rateToBase;
+        $data['amount_base'] = $amountBase;
+
+        $payment->update($data);
+
+        return redirect()
+            ->route('invoicing.payments.index')
+            ->with('success', 'Payment updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $payment = Payment::findOrFail($id);
+        $payment->delete();
+
+        return redirect()
+            ->route('invoicing.payments.index')
+            ->with('success', 'Payment deleted successfully.');
+    }
 }

@@ -149,7 +149,11 @@ Route::prefix('invoicing')
         // Payments
         Route::get('payments', [\App\Http\Controllers\Invoicing\PaymentController::class, 'index'])->name('payments.index');
         Route::get('payments/create', [\App\Http\Controllers\Invoicing\PaymentController::class, 'create'])->name('payments.create');
+        Route::get('payments/{id}', [\App\Http\Controllers\Invoicing\PaymentController::class, 'show'])->name('payments.show');
+        Route::get('payments/{id}/edit', [\App\Http\Controllers\Invoicing\PaymentController::class, 'edit'])->name('payments.edit');
         Route::post('payments', [\App\Http\Controllers\Invoicing\PaymentController::class, 'store'])->name('payments.store');
+        Route::put('payments/{id}', [\App\Http\Controllers\Invoicing\PaymentController::class, 'update'])->name('payments.update');
+        Route::delete('payments/{id}', [\App\Http\Controllers\Invoicing\PaymentController::class, 'destroy'])->name('payments.destroy');
     });
 
 // Employees module routes
