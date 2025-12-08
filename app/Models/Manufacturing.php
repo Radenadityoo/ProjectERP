@@ -15,6 +15,7 @@ class Manufacturing extends Model
         'quantity',
         'deadline',
         'status',
+        'bom_id',
     ];
 
     protected $casts = [
@@ -24,5 +25,10 @@ class Manufacturing extends Model
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function bom()
+    {
+        return $this->belongsTo(BomHeader::class, 'bom_id');
     }
 }

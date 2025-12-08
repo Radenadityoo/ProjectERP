@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Manufacturing;
+use App\Models\BomHeader;
+use App\Models\BomComponent;
 use Illuminate\Support\Str;
 
 class ManufacturingController extends Controller
@@ -40,7 +42,8 @@ class ManufacturingController extends Controller
         ];
 
         $products = Product::orderBy('name')->get();
-        return view('admin.manufacturing.create')->with(['commandbar' => $commandbar, 'reference' => $reference, 'products' => $products]);
+        $boms = BomHeader::orderBy('name')->get();
+        return view('admin.manufacturing.create')->with(['commandbar' => $commandbar, 'reference' => $reference, 'products' => $products, 'boms' => $boms]);
     }
 
     public function store(Request $request)
@@ -50,6 +53,7 @@ class ManufacturingController extends Controller
             'product_id' => 'nullable|integer',
             'quantity' => 'nullable|numeric',
             'deadline' => 'nullable|date',
+            'bom_id' => 'nullable|integer|exists:bom_headers,id',
         ]);
 
         $data['status'] = 'draft';
@@ -69,6 +73,27 @@ class ManufacturingController extends Controller
     {
         $manufacturing->delete();
         return redirect()->route('admin.manufacturing.index')->with('success', 'Manufacturing Order deleted.');
+    }
+
+    public function getBomDetails($bomId)
+    {
+        $bom = BomHeader::with('components.componentProduct')->findOrFail($bomId);
+        
+        return response()->json([
+            'id' => $bom->id,
+            'name' => $bom->name,
+            'product_id' => $bom->product_id,
+            'quantity' => $bom->quantity,
+            'components' => $bom->components->map(function($component) {
+                return [
+                    'component_product_id' => $component->component_product_id,
+                    'product_name' => $component->componentProduct ? $component->componentProduct->name : 'Unknown',
+                    'qty' => floatval($component->qty),
+                    'unit_cost' => floatval($component->unit_cost),
+                    'subtotal' => floatval($component->subtotal),
+                ];
+            })->toArray(),
+        ]);
     }
 
     public function updateStatus(Request $request, Manufacturing $manufacturing)

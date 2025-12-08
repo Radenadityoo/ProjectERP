@@ -30,6 +30,7 @@ Route::prefix('admin')
         Route::get('manufacturing', [\App\Http\Controllers\Admin\ManufacturingController::class, 'index'])->name('manufacturing.index');
         Route::get('manufacturing/create', [\App\Http\Controllers\Admin\ManufacturingController::class, 'create'])->name('manufacturing.create');
         Route::get('manufacturing/{manufacturing}', [\App\Http\Controllers\Admin\ManufacturingController::class, 'show'])->name('manufacturing.show');
+        Route::get('manufacturing/bom/{bomId}/details', [\App\Http\Controllers\Admin\ManufacturingController::class, 'getBomDetails'])->name('manufacturing.bom.details');
         Route::post('manufacturing', [\App\Http\Controllers\Admin\ManufacturingController::class, 'store'])->name('manufacturing.store');
         Route::patch('manufacturing/{manufacturing}/status', [\App\Http\Controllers\Admin\ManufacturingController::class, 'updateStatus'])->name('manufacturing.updateStatus');
         Route::delete('manufacturing/{manufacturing}', [\App\Http\Controllers\Admin\ManufacturingController::class, 'destroy'])->name('manufacturing.destroy');
