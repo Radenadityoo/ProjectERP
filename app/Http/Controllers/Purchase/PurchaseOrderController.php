@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Purchase;
 
 use App\Http\Controllers\Controller;
+use App\Models\Product;
+use App\Models\StockMovement;
 use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
@@ -161,6 +163,9 @@ class PurchaseOrderController extends Controller
         ]);
 
         $po = \App\Models\PurchaseOrder::findOrFail($id);
+        $oldStatus = $po->status;
+        $newStatus = $data['status'];
+        
         $currencyCode = strtoupper($data['currency_code'] ?? $po->currency ?? setting('currency.default', base_currency()));
         $rateToBase = currency_rate_to_base($currencyCode);
         $po->update([
@@ -229,6 +234,62 @@ class PurchaseOrderController extends Controller
             'total_base' => $totalBase,
         ]);
 
+        // Handle inventory when status changes to Received
+        if ($newStatus === 'Received' && $oldStatus !== 'Received') {
+            $this->increaseInventoryForPurchaseOrder($po);
+        }
+        // Reverse inventory if status changes from Received back
+        elseif ($oldStatus === 'Received' && $newStatus !== 'Received') {
+            $this->reverseInventoryForPurchaseOrder($po);
+        }
+
         return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated successfully');
+    }
+
+    /**
+     * Increase inventory when purchase order is received
+     */
+    protected function increaseInventoryForPurchaseOrder(\App\Models\PurchaseOrder $po)
+    {
+        foreach ($po->items as $item) {
+            if (!$item->product_id) continue;
+            
+            $product = Product::find($item->product_id);
+            if ($product && $product->track_inventory) {
+                // Increase product quantity
+                $product->increment('quantity', $item->quantity);
+
+                // Create stock movement record
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'type' => 'purchase_order',
+                    'reference' => $po->po_number,
+                    'quantity' => $item->quantity,
+                    'source' => $po->vendor->name ?? 'Vendor',
+                    'notes' => "Received via Purchase Order {$po->po_number}",
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Reverse inventory when purchase order status changes from received
+     */
+    protected function reverseInventoryForPurchaseOrder(\App\Models\PurchaseOrder $po)
+    {
+        foreach ($po->items as $item) {
+            if (!$item->product_id) continue;
+            
+            $product = Product::find($item->product_id);
+            if ($product && $product->track_inventory) {
+                // Reduce product quantity
+                $product->decrement('quantity', $item->quantity);
+            }
+        }
+
+        // Delete related stock movements
+        StockMovement::where('type', 'purchase_order')
+            ->where('reference', $po->po_number)
+            ->delete();
     }
 }

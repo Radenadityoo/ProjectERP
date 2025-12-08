@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\SalesOrder;
 use App\Models\SalesOrderItem;
+use App\Models\StockMovement;
 use Illuminate\Http\Request;
 
 class SalesOrderController extends Controller
@@ -181,6 +182,9 @@ class SalesOrderController extends Controller
         ]);
 
         $order = SalesOrder::findOrFail($id);
+        $oldStatus = $order->status;
+        $newStatus = $data['status'];
+        
         $currencyCode = strtoupper($data['currency_code'] ?? $order->currency_code ?? setting('currency.default', base_currency()));
         $rateToBase = currency_rate_to_base($currencyCode);
 
@@ -235,6 +239,62 @@ class SalesOrderController extends Controller
             'total_base' => $subtotalBase + $taxTotalBase,
         ]);
 
-        return redirect()->route('sales.orders.index')->with('success', 'Sales order updated');
+        // Handle inventory when status changes to delivered
+        if ($newStatus === 'delivered' && $oldStatus !== 'delivered') {
+            $this->reduceInventoryForSalesOrder($order);
+        }
+        // Reverse inventory if status changes from delivered back
+        elseif ($oldStatus === 'delivered' && $newStatus !== 'delivered') {
+            $this->reverseInventoryForSalesOrder($order);
+        }
+
+        return redirect()->route('sales.orders.index')->with('success', 'Sales Order updated successfully');
+    }
+
+    /**
+     * Reduce inventory when sales order is delivered
+     */
+    protected function reduceInventoryForSalesOrder(SalesOrder $order)
+    {
+        foreach ($order->items as $item) {
+            if (!$item->product_id) continue;
+            
+            $product = Product::find($item->product_id);
+            if ($product && $product->track_inventory) {
+                // Reduce product quantity
+                $product->decrement('quantity', $item->quantity);
+
+                // Create stock movement record
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'type' => 'sales_order',
+                    'reference' => $order->so_number,
+                    'quantity' => -$item->quantity,
+                    'destination' => $order->customer->name ?? 'Customer',
+                    'notes' => "Delivered via Sales Order {$order->so_number}",
+                ]);
+            }
+        }
+    }
+
+    /**
+     * Reverse inventory when sales order status changes from delivered
+     */
+    protected function reverseInventoryForSalesOrder(SalesOrder $order)
+    {
+        foreach ($order->items as $item) {
+            if (!$item->product_id) continue;
+            
+            $product = Product::find($item->product_id);
+            if ($product && $product->track_inventory) {
+                // Restore product quantity
+                $product->increment('quantity', $item->quantity);
+            }
+        }
+
+        // Delete related stock movements
+        StockMovement::where('type', 'sales_order')
+            ->where('reference', $order->so_number)
+            ->delete();
     }
 }
