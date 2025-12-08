@@ -20,10 +20,6 @@ class InventorySeeder extends Seeder
         // Enable inventory tracking for all products
         Product::query()->update(['track_inventory' => true]);
 
-        // Get products
-        $rawMaterials = Product::where('type', 'raw_material')->get();
-        $finishedProducts = Product::where('type', 'finished_product')->get();
-
         // Reset quantities to 0 for fresh start
         Product::query()->update(['quantity' => 0]);
 
@@ -50,13 +46,11 @@ class InventorySeeder extends Seeder
                 $product->increment('quantity', $item['qty']);
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'receipt',
-                    'reference_id' => $receipt1->id,
-                    'reference_type' => 'Receipt',
-                    'qty_in' => $item['qty'],
-                    'qty_out' => 0,
+                    'type' => 'receipt',
+                    'reference' => $receipt1->reference,
+                    'quantity' => $item['qty'],
+                    'source' => $receipt1->supplier,
                     'notes' => "Received from {$receipt1->supplier}",
-                    'created_at' => $receipt1->received_at,
                 ]);
             }
         }
@@ -80,19 +74,17 @@ class InventorySeeder extends Seeder
                 $product->increment('quantity', $item['qty']);
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'receipt',
-                    'reference_id' => $receipt2->id,
-                    'reference_type' => 'Receipt',
-                    'qty_in' => $item['qty'],
-                    'qty_out' => 0,
+                    'type' => 'receipt',
+                    'reference' => $receipt2->reference,
+                    'quantity' => $item['qty'],
+                    'source' => $receipt2->supplier,
                     'notes' => "Received from {$receipt2->supplier}",
-                    'created_at' => $receipt2->received_at,
                 ]);
             }
         }
 
         // =====================
-        // 2. CREATE MANUFACTURING PRODUCTION (Simulated by adjustments)
+        // 2. MANUFACTURING PRODUCTION (Simulated)
         // =====================
         
         $adjustment1 = Adjustment::create([
@@ -101,48 +93,43 @@ class InventorySeeder extends Seeder
             'adjusted_at' => now()->subDays(5),
         ]);
 
-        // Simulate components used
+        // Components used for Kroket Kentang
         $kroketComponents = [
-            ['sku' => 'BNBU-002', 'qty' => 50],   // Bawang Merah
-            ['sku' => 'BNBU-003', 'qty' => 33],   // Bawang Putih
-            ['sku' => 'BNBU-009', 'qty' => 104],  // Tepung Terigu
+            ['sku' => 'BNBU-002', 'qty' => -50],   // Bawang Merah
+            ['sku' => 'BNBU-003', 'qty' => -33],   // Bawang Putih
+            ['sku' => 'BNBU-009', 'qty' => -104],  // Tepung Terigu
         ];
 
         foreach ($kroketComponents as $item) {
             $product = Product::where('reference', $item['sku'])->first();
             if ($product) {
-                $product->decrement('quantity', $item['qty']);
+                $product->decrement('quantity', abs($item['qty']));
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'adjustment',
-                    'reference_id' => $adjustment1->id,
-                    'reference_type' => 'Adjustment',
-                    'qty_in' => 0,
-                    'qty_out' => $item['qty'],
+                    'type' => 'adjustment',
+                    'reference' => $adjustment1->reference,
+                    'quantity' => $item['qty'],
                     'notes' => "Components used for Kroket Kentang production",
-                    'created_at' => $adjustment1->adjusted_at,
                 ]);
             }
         }
 
-        // Add finished product
+        // Finished product produced
         $kroketProduct = Product::where('reference', 'MKR-01')->first();
         if ($kroketProduct) {
             $kroketProduct->increment('quantity', 40);
             StockMovement::create([
                 'product_id' => $kroketProduct->id,
-                'movement_type' => 'adjustment',
-                'reference_id' => $adjustment1->id,
-                'reference_type' => 'Adjustment',
-                'qty_in' => 40,
-                'qty_out' => 0,
+                'type' => 'adjustment',
+                'reference' => $adjustment1->reference,
+                'quantity' => 40,
+                'destination' => 'Main Warehouse',
                 'notes' => "Kroket Kentang produced - Batch 1",
-                'created_at' => $adjustment1->adjusted_at,
             ]);
         }
 
         // =====================
-        // 3. CREATE DELIVERIES (Sales/Outbound)
+        // 3. DELIVERIES (Sales/Outbound)
         // =====================
         
         $delivery1 = Delivery::create([
@@ -162,13 +149,11 @@ class InventorySeeder extends Seeder
                 $product->decrement('quantity', $item['qty']);
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'delivery',
-                    'reference_id' => $delivery1->id,
-                    'reference_type' => 'Delivery',
-                    'qty_in' => 0,
-                    'qty_out' => $item['qty'],
+                    'type' => 'delivery',
+                    'reference' => $delivery1->reference,
+                    'quantity' => -$item['qty'],
+                    'destination' => $delivery1->customer,
                     'notes' => "Delivered to {$delivery1->customer}",
-                    'created_at' => $delivery1->shipped_at,
                 ]);
             }
         }
@@ -190,19 +175,17 @@ class InventorySeeder extends Seeder
                 $product->decrement('quantity', $item['qty']);
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'delivery',
-                    'reference_id' => $delivery2->id,
-                    'reference_type' => 'Delivery',
-                    'qty_in' => 0,
-                    'qty_out' => $item['qty'],
+                    'type' => 'delivery',
+                    'reference' => $delivery2->reference,
+                    'quantity' => -$item['qty'],
+                    'destination' => $delivery2->customer,
                     'notes' => "Delivered to {$delivery2->customer}",
-                    'created_at' => $delivery2->shipped_at,
                 ]);
             }
         }
 
         // =====================
-        // 4. CREATE TRANSFERS (Between locations)
+        // 4. TRANSFERS (Between locations)
         // =====================
         
         $transfer1 = Transfer::create([
@@ -222,19 +205,18 @@ class InventorySeeder extends Seeder
             if ($product) {
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'transfer',
-                    'reference_id' => $transfer1->id,
-                    'reference_type' => 'Transfer',
-                    'qty_in' => 0,
-                    'qty_out' => 0,
+                    'type' => 'transfer',
+                    'reference' => $transfer1->reference,
+                    'quantity' => 0,
+                    'source' => $transfer1->from_location,
+                    'destination' => $transfer1->to_location,
                     'notes' => "Transferred from {$transfer1->from_location} to {$transfer1->to_location}",
-                    'created_at' => $transfer1->transferred_at,
                 ]);
             }
         }
 
         // =====================
-        // 5. CREATE ADJUSTMENTS (Discrepancies/Damage)
+        // 5. ADJUSTMENTS (Discrepancies/Damage)
         // =====================
         
         $adjustment2 = Adjustment::create([
@@ -253,29 +235,22 @@ class InventorySeeder extends Seeder
             if ($product) {
                 if ($item['qty'] > 0) {
                     $product->increment('quantity', $item['qty']);
-                    $qtyIn = $item['qty'];
-                    $qtyOut = 0;
                 } else {
                     $product->decrement('quantity', abs($item['qty']));
-                    $qtyIn = 0;
-                    $qtyOut = abs($item['qty']);
                 }
 
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'adjustment',
-                    'reference_id' => $adjustment2->id,
-                    'reference_type' => 'Adjustment',
-                    'qty_in' => $qtyIn,
-                    'qty_out' => $qtyOut,
+                    'type' => 'adjustment',
+                    'reference' => $adjustment2->reference,
+                    'quantity' => $item['qty'],
                     'notes' => $adjustment2->reason,
-                    'created_at' => $adjustment2->adjusted_at,
                 ]);
             }
         }
 
         // =====================
-        // 6. CREATE FINAL STOCK RECEIPT (Restocking before closing)
+        // 6. FINAL STOCK RECEIPT (Restocking)
         // =====================
         
         $receipt3 = Receipt::create([
@@ -296,13 +271,11 @@ class InventorySeeder extends Seeder
                 $product->increment('quantity', $item['qty']);
                 StockMovement::create([
                     'product_id' => $product->id,
-                    'movement_type' => 'receipt',
-                    'reference_id' => $receipt3->id,
-                    'reference_type' => 'Receipt',
-                    'qty_in' => $item['qty'],
-                    'qty_out' => 0,
+                    'type' => 'receipt',
+                    'reference' => $receipt3->reference,
+                    'quantity' => $item['qty'],
+                    'source' => $receipt3->supplier,
                     'notes' => "Received from {$receipt3->supplier}",
-                    'created_at' => $receipt3->received_at,
                 ]);
             }
         }
