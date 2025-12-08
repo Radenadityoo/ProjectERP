@@ -108,6 +108,15 @@
         }
         body {
             background: white;
+            display: flex;
+        }
+        .no-print,
+        [class*="sidebar"],
+        nav {
+            display: none !important;
+        }
+        .flex-1 {
+            margin-left: 0 !important;
         }
     </style>
 @endsection
