@@ -71,15 +71,15 @@
                         <td class="px-6 py-4 whitespace-nowrap">
                             @php
                                 $statusColors = [
-                                    'Draft' => 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
-                                    'Posted' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
-                                    'Paid' => 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
-                                    'Overdue' => 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
+                                    'draft' => 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
+                                    'posted' => 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
+                                    'paid' => 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+                                    'overdue' => 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
                                 ];
-                                $colorClass = $statusColors[$invoice['status']] ?? 'bg-gray-100 text-gray-800';
+                                $colorClass = $statusColors[strtolower($invoice['status'])] ?? 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300';
                             @endphp
                             <span class="px-2 py-1 text-xs font-medium rounded-full {{ $colorClass }}">
-                                {{ $invoice['status'] }}
+                                {{ ucfirst($invoice['status']) }}
                             </span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">

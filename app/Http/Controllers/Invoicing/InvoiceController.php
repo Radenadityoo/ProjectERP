@@ -130,6 +130,7 @@ class InvoiceController extends Controller
             'id' => $invoiceModel->id,
             'number' => $invoiceModel->number,
             'customer_id' => $invoiceModel->customer_id,
+            'sales_order_id' => $invoiceModel->sales_order_id,
             'invoice_date' => optional($invoiceModel->invoice_date)->format('Y-m-d'),
             'due_date' => optional($invoiceModel->due_date)->format('Y-m-d'),
             'reference' => $invoiceModel->reference,
