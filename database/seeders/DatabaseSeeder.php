@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class,
             VendorSeeder::class,
             SampleDataSeeder::class,
+            InventorySeeder::class,
             PurchaseOrderSeeder::class,
             EmployeeSeeder::class,
         ]);
