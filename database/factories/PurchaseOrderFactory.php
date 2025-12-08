@@ -12,21 +12,19 @@ class PurchaseOrderFactory extends Factory
     public function definition(): array
     {
         $subtotal = fake()->numberBetween(100000, 1000000);
-        $tax = intval($subtotal * 0.1);
-        $total = $subtotal + $tax;
+        $tax_amount = intval($subtotal * 0.1);
+        $total = $subtotal + $tax_amount;
 
         return [
             'po_number' => 'PO-' . now()->format('Ymd') . '-' . fake()->unique()->numerify('####'),
+            'vendor_id' => fake()->numberBetween(1, 10),
             'order_date' => fake()->dateTimeBetween('-30 days'),
             'expected_arrival' => fake()->dateTimeBetween('now', '+30 days'),
             'status' => fake()->randomElement(['draft', 'confirmed', 'received']),
             'currency' => 'IDR',
             'subtotal' => $subtotal,
-            'tax' => $tax,
+            'tax_amount' => $tax_amount,
             'total' => $total,
-            'subtotal_base' => $subtotal,
-            'tax_base' => $tax,
-            'total_base' => $total,
         ];
     }
 }
