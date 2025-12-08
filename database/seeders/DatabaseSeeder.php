@@ -36,6 +36,7 @@ class DatabaseSeeder extends Seeder
             SampleDataSeeder::class,
             InventorySeeder::class,
             PurchaseOrderSeeder::class,
+            PaymentSeeder::class,
             EmployeeSeeder::class,
         ]);
     }
