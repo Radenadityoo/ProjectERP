@@ -35,4 +35,22 @@ class Customer extends Model
         'tags' => 'array',
         'total_spend' => 'decimal:2',
     ];
+
+    protected $appends = ['calculated_total_spend'];
+
+    /**
+     * Relationship to sales orders
+     */
+    public function salesOrders()
+    {
+        return $this->hasMany(SalesOrder::class);
+    }
+
+    /**
+     * Dynamically calculate total spend from sales orders
+     */
+    public function getCalculatedTotalSpendAttribute()
+    {
+        return $this->salesOrders()->sum('total') ?? 0;
+    }
 }

@@ -53,7 +53,7 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ currency($customer->total_spend, 'IDR') }}</div>
+                                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ currency($customer->calculated_total_spend, 'IDR') }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm">
                                             <div class="flex items-center gap-2">

@@ -48,19 +48,3 @@
     </div>
 </form>
 @endsection
-    </div>
-
-    <div class="flex gap-3">
-        <a href="{{ route('purchase.vendors.index') }}" class="px-4 py-2 rounded-xl border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium">Cancel</a>
-        <button class="px-4 py-2 rounded-xl bg-erp text-white hover:bg-opacity-90 text-sm font-semibold" onclick="saveVendor()">Save</button>
-    </div>
-</div>
-
-@push('scripts')
-<script>
-    function saveVendor() {
-        alert('Vendor updated (demo)');
-    }
-</script>
-@endpush
-@endsection

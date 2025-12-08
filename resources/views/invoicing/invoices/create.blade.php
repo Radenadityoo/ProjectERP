@@ -24,26 +24,12 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Status *</label>
-                            <div class="flex gap-2">
-                                <label class="flex-1">
-                                    <input type="radio" name="status" value="draft" checked class="peer sr-only" />
-                                    <div class="cursor-pointer text-center px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 peer-checked:bg-gray-100 peer-checked:border-gray-900 peer-checked:text-gray-900 dark:peer-checked:bg-gray-700 dark:peer-checked:border-gray-100 dark:peer-checked:text-gray-100 transition-all text-sm font-medium">
-                                        draft
-                                    </div>
-                                </label>
-                                <label class="flex-1">
-                                    <input type="radio" name="status" value="posted" class="peer sr-only" />
-                                    <div class="cursor-pointer text-center px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 peer-checked:bg-gray-100 peer-checked:border-gray-900 peer-checked:text-gray-900 dark:peer-checked:bg-gray-700 dark:peer-checked:border-gray-100 dark:peer-checked:text-gray-100 transition-all text-sm font-medium">
-                                        posted
-                                    </div>
-                                </label>
-                                <label class="flex-1">
-                                    <input type="radio" name="status" value="paid" class="peer sr-only" />
-                                    <div class="cursor-pointer text-center px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 peer-checked:bg-gray-100 peer-checked:border-gray-900 peer-checked:text-gray-900 dark:peer-checked:bg-gray-700 dark:peer-checked:border-gray-100 dark:peer-checked:text-gray-100 transition-all text-sm font-medium">
-                                        paid
-                                    </div>
-                                </label>
-                            </div>
+                            <select name="status" required class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
+                                <option value="draft" selected>Draft</option>
+                                <option value="posted">Posted</option>
+                                <option value="paid">Paid</option>
+                                <option value="cancelled">Cancelled</option>
+                            </select>
                         </div>
 
                         <div>
