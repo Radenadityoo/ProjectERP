@@ -66,7 +66,7 @@
                                 </select>
                                 <input name="components[{{ $i }}][qty]" value="{{ $row['qty'] ?? '' }}" placeholder="Qty" class="border rounded p-2 bg-white dark:bg-gray-900 qty" />
                                 <input name="components[{{ $i }}][unit_cost]" value="{{ $row['unit_cost'] ?? '' }}" placeholder="Unit Cost" class="border rounded p-2 bg-white dark:bg-gray-900 unit_cost" />
-                                <div class="subtotal text-sm text-gray-500">{{ isset($row['subtotal']) ? number_format($row['subtotal'],2) : '0.00' }}</div>
+                                <div class="subtotal text-sm text-gray-500">{{ isset($row['subtotal']) ? currency($row['subtotal'], $defaultCurrency ?? 'IDR') : '0.00' }}</div>
                                 <button type="button" class="remove-row text-red-600">Remove</button>
                             </div>
                         @endforeach

@@ -32,7 +32,7 @@
                 </div>
                 <div>
                     <div class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Cost</div>
-                    <div class="text-lg font-semibold text-green-600 dark:text-green-400 mt-1">${{ number_format($bom->total_cost, 2) }}</div>
+                    <div class="text-lg font-semibold text-green-600 dark:text-green-400 mt-1">{{ currency($bom->total_cost, $defaultCurrency ?? 'IDR') }}</div>
                 </div>
             </div>
         </div>
@@ -59,15 +59,15 @@
                                         {{ $component->componentProduct ? $component->componentProduct->name : 'Unknown Product' }}
                                     </td>
                                     <td class="px-4 py-3 text-right text-gray-900 dark:text-gray-100">{{ number_format($component->qty, 2) }}</td>
-                                    <td class="px-4 py-3 text-right text-gray-900 dark:text-gray-100">${{ number_format($component->unit_cost, 2) }}</td>
-                                    <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-gray-100">${{ number_format($component->subtotal, 2) }}</td>
+                                    <td class="px-4 py-3 text-right text-gray-900 dark:text-gray-100">{{ currency($component->unit_cost, $defaultCurrency ?? 'IDR') }}</td>
+                                    <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-gray-100">{{ currency($component->subtotal, $defaultCurrency ?? 'IDR') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot class="border-t-2 border-gray-300 dark:border-gray-600">
                             <tr class="bg-gray-50 dark:bg-gray-700">
                                 <td colspan="3" class="px-4 py-3 text-right font-semibold text-gray-900 dark:text-gray-100">Total Cost:</td>
-                                <td class="px-4 py-3 text-right font-bold text-lg text-green-600 dark:text-green-400">${{ number_format($bom->total_cost, 2) }}</td>
+                                <td class="px-4 py-3 text-right font-bold text-lg text-green-600 dark:text-green-400">{{ currency($bom->total_cost, $defaultCurrency ?? 'IDR') }}</td>
                             </tr>
                         </tfoot>
                     </table>
