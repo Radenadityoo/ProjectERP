@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Manufacturing;
 use App\Models\BomHeader;
 use App\Models\BomComponent;
+use App\Services\InventoryService;
 use Illuminate\Support\Str;
 
 class ManufacturingController extends Controller
@@ -102,8 +103,22 @@ class ManufacturingController extends Controller
             'status' => 'required|in:draft,confirmed,done',
         ]);
 
-        $manufacturing->update(['status' => $request->status]);
+        $oldStatus = $manufacturing->status;
+        $newStatus = $request->status;
 
-        return redirect()->route('admin.manufacturing.show', $manufacturing)->with('success', 'Status updated to ' . ucfirst($request->status));
+        $inventoryService = new InventoryService();
+
+        // Handle inventory when transitioning to done status
+        if ($newStatus === 'done' && $oldStatus !== 'done') {
+            $inventoryService->completeManufacturingOrder($manufacturing);
+        }
+        // Reverse inventory if transitioning away from done status
+        elseif ($oldStatus === 'done' && $newStatus !== 'done') {
+            $inventoryService->reverseManufacturingOrder($manufacturing);
+        }
+
+        $manufacturing->update(['status' => $newStatus]);
+
+        return redirect()->route('admin.manufacturing.show', $manufacturing)->with('success', 'Status updated to ' . ucfirst($newStatus));
     }
 }

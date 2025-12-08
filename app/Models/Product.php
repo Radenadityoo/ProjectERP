@@ -21,5 +21,19 @@ class Product extends Model
         'company',
         'internal_notes',
         'uom',
+        'quantity',
+        'description',
     ];
+
+    protected $casts = [
+        'quantity' => 'decimal:2',
+        'price' => 'decimal:2',
+        'cost' => 'decimal:2',
+        'track_inventory' => 'boolean',
+    ];
+
+    public function inventoryMovements()
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
 }
