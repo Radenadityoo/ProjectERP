@@ -8,8 +8,8 @@
             <div class="bg-white dark:bg-gray-900/80 backdrop-blur overflow-hidden shadow-sm sm:rounded-xl p-6 border border-gray-100 dark:border-gray-800">
                 <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Unified Control Center</p>
-                        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100">Dashboard</h1>
+                        <span class="inline-block text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-indigo-100 to-indigo-50 dark:from-indigo-900/40 dark:to-indigo-900/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">Unified Control Center</span>
+                        <h1 class="text-2xl font-semibold text-gray-900 dark:text-gray-100 mt-2">Dashboard</h1>
                         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Monitor sales, purchasing, invoicing, inventory, and fulfillment at a glance.</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -24,10 +24,19 @@
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 @foreach($kpis as $kpi)
                     <div class="bg-white dark:bg-gray-900/80 shadow-sm rounded-xl p-4 border border-gray-100 dark:border-gray-800">
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ $kpi['label'] }}</p>
-                        <div class="mt-2 flex items-baseline gap-2">
+                        @php
+                            $colorMap = [
+                                'bg-blue-500' => ['bg' => 'bg-blue-500/10 dark:bg-blue-500/20', 'text' => 'text-blue-700 dark:text-blue-300', 'border' => 'border-blue-200 dark:border-blue-800'],
+                                'bg-indigo-500' => ['bg' => 'bg-indigo-500/10 dark:bg-indigo-500/20', 'text' => 'text-indigo-700 dark:text-indigo-300', 'border' => 'border-indigo-200 dark:border-indigo-800'],
+                                'bg-rose-500' => ['bg' => 'bg-rose-500/10 dark:bg-rose-500/20', 'text' => 'text-rose-700 dark:text-rose-300', 'border' => 'border-rose-200 dark:border-rose-800'],
+                                'bg-amber-500' => ['bg' => 'bg-amber-500/10 dark:bg-amber-500/20', 'text' => 'text-amber-700 dark:text-amber-300', 'border' => 'border-amber-200 dark:border-amber-800'],
+                            ];
+                            $colors = $colorMap[$kpi['color']] ?? ['bg' => 'bg-gray-500/10', 'text' => 'text-gray-700', 'border' => 'border-gray-200'];
+                        @endphp
+                        <span class="inline-block text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-gray-100 to-gray-50 dark:from-gray-800 dark:to-gray-800/50 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700">{{ $kpi['label'] }}</span>
+                        <div class="mt-3 flex items-baseline gap-2">
                             <span class="text-2xl font-semibold text-gray-900 dark:text-gray-100">{{ $kpi['value'] }}</span>
-                            <span class="text-xs px-2 py-1 rounded-full {{ $kpi['color'] }} text-white">{{ $kpi['delta'] }}</span>
+                            <span class="text-xs px-2.5 py-1 rounded-full {{ $colors['bg'] }} {{ $colors['text'] }} {{ $colors['border'] }} border font-semibold">{{ $kpi['delta'] }}</span>
                         </div>
                     </div>
                 @endforeach
@@ -61,14 +70,14 @@
             <div class="bg-white dark:bg-gray-900/80 shadow-sm rounded-xl p-4 border border-gray-100 dark:border-gray-800">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Critical Reports</p>
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Items needing attention</h3>
+                        <span class="inline-block text-xs font-medium px-3 py-1 rounded-full bg-gradient-to-r from-rose-100 to-rose-50 dark:from-rose-900/40 dark:to-rose-900/20 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800">Critical Reports</span>
+                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mt-2">Items needing attention</h3>
                     </div>
                     <span class="text-xs px-2 py-1 rounded-full bg-rose-50 text-rose-700 dark:bg-rose-900/40 dark:text-rose-200">Watchlist</span>
                 </div>
                 <div class="grid gap-3 md:grid-cols-2">
                     @foreach($criticalReports as $report)
-                        <a href="{{ $report['link'] }}" class="flex items-center justify-between p-3 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-erp/60 hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] transition">
+                        <a href="{{ $report['link'] }}" class="flex items-center justify-between p-3 rounded-lg border border-gray-200 dark:border-gray-800 hover:border-erp dark:hover:border-erp hover:bg-erp/5 dark:hover:bg-[#163a2a] transition">
                             <div>
                                 <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $report['label'] }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400">Tap to open</p>
