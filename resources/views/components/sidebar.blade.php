@@ -81,16 +81,22 @@
             </div>
 
             <div class="module-section mb-2" data-section="modules-parent">
-                <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                    <span>Modules</span>
-                    <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 bg-gradient-to-r from-[#E4EFE9] to-transparent dark:from-[#1a3a2a] dark:to-transparent hover:from-[#d4e8e0] dark:hover:from-[#1e4435] transition-all group" data-toggle>
+                    <span class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h7v7H4z"/><path d="M13 4h7v7h-7z"/><path d="M13 13h7v7h-7z"/><path d="M4 13h7v7H4z"/></svg>
+                        Modules
+                    </span>
+                    <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </button>
 
                 <div class="module-contents px-1 mt-2" data-content>
                     <div class="module-section mb-2" data-section="manufacturing">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Manufacturing</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/><path d="M8 6l8 8-8 8"/></svg>
+                                Manufacturing
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
@@ -125,9 +131,12 @@
                     </div>
 
                     <div class="module-section mb-2" data-section="inventory">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Inventory</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9h18v10c0 1-1 2-2 2H5c-1 0-2-1-2-2V9z"/><path d="M3 9V7c0-1 1-2 2-2h14c1 0 2 1 2 2v2"/></svg>
+                                Inventory
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
@@ -183,9 +192,12 @@
                     </div>
 
                     <div class="module-section mb-2" data-section="purchase">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Purchase</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                                Purchase
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
@@ -213,9 +225,12 @@
                     </div>
 
                     <div class="module-section mb-2" data-section="sales">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Sales</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3"></polyline><polyline points="12 12 20 7.5"></polyline><polyline points="12 12 12 21"></polyline><polyline points="12 12 4 7.5"></polyline></svg>
+                                Sales
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
@@ -243,9 +258,12 @@
                     </div>
 
                     <div class="module-section mb-2" data-section="invoicing">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Invoicing</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+                                Invoicing
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
@@ -273,9 +291,12 @@
                     </div>
 
                     <div class="module-section mb-2" data-section="employees">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Employees</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Employees
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
@@ -295,9 +316,12 @@
                     </div>
 
                     <div class="module-section mb-2" data-section="settings">
-                        <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
-                            <span>Settings</span>
-                            <svg class="w-4 h-4 transition-transform" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        <button type="button" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left font-semibold text-xs text-[#1A1A1A] dark:text-gray-200 hover:bg-[#f0f3f1] dark:hover:bg-[#1a3a2a] transition-all" data-toggle>
+                            <span class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-[#5A8E74]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 5.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08-5.08l4.24-4.24"/></svg>
+                                Settings
+                            </span>
+                            <svg class="w-4 h-4 transition-transform text-[#5A8E74]" data-chevron viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 9l6 6 6-6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>

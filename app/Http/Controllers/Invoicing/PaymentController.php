@@ -12,27 +12,29 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        $commandbar = [
-            'title' => 'Payments',
-            'showViewSwitch' => false,
-        ];
-
         $payments = Payment::with('customer', 'invoice')
             ->orderBy('payment_date', 'desc')
-            ->get()
-            ->map(function($p) {
-                return [
-                    'id' => $p->id,
-                    'payment_number' => $p->payment_number,
-                    'customer' => $p->customer?->name ?? 'N/A',
-                    'invoice_ref' => $p->invoice_ref ?? $p->invoice?->number ?? 'N/A',
-                    'payment_date' => $p->payment_date instanceof \Carbon\Carbon ? $p->payment_date->format('Y-m-d') : $p->payment_date,
-                    'amount' => currency($p->amount_base ?? $p->amount, base_currency()),
-                    'payment_method' => $p->payment_method,
-                    'status' => ucfirst($p->status),
-                ];
-            })
-            ->toArray();
+            ->paginate(25);
+
+        $payments->getCollection()->transform(function($p) {
+            return [
+                'id' => $p->id,
+                'payment_number' => $p->payment_number,
+                'customer' => $p->customer?->name ?? 'N/A',
+                'invoice_ref' => $p->invoice_ref ?? $p->invoice?->number ?? 'N/A',
+                'payment_date' => $p->payment_date instanceof \Carbon\Carbon ? $p->payment_date->format('Y-m-d') : $p->payment_date,
+                'amount' => currency($p->amount_base ?? $p->amount, base_currency()),
+                'payment_method' => $p->payment_method,
+                'status' => ucfirst($p->status),
+            ];
+        });
+
+        $commandbar = [
+            'title' => 'Payments',
+            'count' => $payments->total(),
+            'showViewSwitch' => false,
+            'searchParam' => 'q',
+        ];
 
         $customers = Customer::orderBy('name')->get();
 
