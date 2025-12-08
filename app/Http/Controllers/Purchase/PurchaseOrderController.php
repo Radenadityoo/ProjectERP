@@ -9,7 +9,8 @@ class PurchaseOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = \App\Models\PurchaseOrder::with('vendor');
+        $query = \App\Models\PurchaseOrder::with('vendor:id,name')
+            ->select('id', 'po_number', 'vendor_id', 'order_date', 'expected_arrival', 'status', 'currency', 'total', 'total_base');
 
         if ($search = $request->input('q')) {
             $query->where(function ($q) use ($search) {
@@ -20,10 +21,10 @@ class PurchaseOrderController extends Controller
             });
         }
 
-        $orders = $query->orderByDesc('order_date')->get();
+        $orders = $query->orderByDesc('order_date')->paginate(25);
         $commandbar = [
             'title' => 'Purchase Orders',
-            'count' => $orders->count(),
+            'count' => $orders->total(),
             'showViewSwitch' => false,
             'searchParam' => 'q',
         ];
@@ -47,6 +48,7 @@ class PurchaseOrderController extends Controller
         $data = $request->validate([
             'vendor_id' => 'required',
             'order_date' => 'required|date',
+            'currency_code' => 'nullable|string|size:3',
             'product_id' => 'nullable|array',
             'product_id.*' => 'nullable|exists:products,id',
             'description' => 'nullable|array',
@@ -55,15 +57,28 @@ class PurchaseOrderController extends Controller
             'tax_rate' => 'nullable|array',
         ]);
 
+        $currencyCode = strtoupper($data['currency_code'] ?? $request->input('currency', setting('currency.default', base_currency())));
+        $rateToBase = currency_rate_to_base($currencyCode);
+
         $po = \App\Models\PurchaseOrder::create([
             'vendor_id' => $data['vendor_id'],
             'order_date' => $data['order_date'],
+            'currency' => $currencyCode,
+            'exchange_rate' => $rateToBase,
             'status' => 'Draft',
+            'subtotal' => 0,
+            'tax_amount' => 0,
             'total' => 0,
+            'subtotal_base' => 0,
+            'tax_amount_base' => 0,
+            'total_base' => 0,
         ]);
 
         // Save items
         $total = 0;
+        $totalBase = 0;
+        $taxTotal = 0;
+        $taxTotalBase = 0;
         $productIds = $data['product_id'] ?? [];
         $descriptions = $data['description'] ?? [];
         $quantities = $data['quantity'] ?? [];
@@ -82,6 +97,8 @@ class PurchaseOrderController extends Controller
             }
             $subtotal = $qty * $price;
             $taxAmount = $subtotal * ($tax / 100);
+            $subtotalBase = convert_to_base($subtotal, $currencyCode);
+            $taxAmountBase = convert_to_base($taxAmount, $currencyCode);
             
             \App\Models\PurchaseOrderItem::create([
                 'purchase_order_id' => $po->id,
@@ -91,12 +108,26 @@ class PurchaseOrderController extends Controller
                 'unit_price' => $price,
                 'tax_rate' => $tax,
                 'subtotal' => $subtotal + $taxAmount,
+                'currency_code' => $currencyCode,
+                'exchange_rate' => $rateToBase,
+                'unit_price_base' => convert_to_base($price, $currencyCode),
+                'subtotal_base' => $subtotalBase + $taxAmountBase,
             ]);
             
             $total += $subtotal + $taxAmount;
+            $taxTotal += $taxAmount;
+            $totalBase += $subtotalBase + $taxAmountBase;
+            $taxTotalBase += $taxAmountBase;
         }
 
-        $po->update(['total' => $total]);
+        $po->update([
+            'subtotal' => $total - $taxTotal,
+            'tax_amount' => $taxTotal,
+            'total' => $total,
+            'subtotal_base' => $totalBase - $taxTotalBase,
+            'tax_amount_base' => $taxTotalBase,
+            'total_base' => $totalBase,
+        ]);
 
         return redirect()->route('purchase.orders.index')->with('success', 'Purchase order created successfully');
     }
@@ -120,6 +151,7 @@ class PurchaseOrderController extends Controller
             'vendor_id' => 'required',
             'order_date' => 'required|date',
             'status' => 'in:Draft,Waiting,Purchase,Received',
+            'currency_code' => 'nullable|string|size:3',
             'product_id' => 'nullable|array',
             'product_id.*' => 'nullable|exists:products,id',
             'description' => 'nullable|array',
@@ -129,10 +161,14 @@ class PurchaseOrderController extends Controller
         ]);
 
         $po = \App\Models\PurchaseOrder::findOrFail($id);
+        $currencyCode = strtoupper($data['currency_code'] ?? $po->currency ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
         $po->update([
             'vendor_id' => $data['vendor_id'],
             'order_date' => $data['order_date'],
             'status' => $data['status'],
+            'currency' => $currencyCode,
+            'exchange_rate' => $rateToBase,
         ]);
 
         // Delete existing items and recreate
@@ -140,6 +176,9 @@ class PurchaseOrderController extends Controller
 
         // Save items
         $total = 0;
+        $totalBase = 0;
+        $taxTotal = 0;
+        $taxTotalBase = 0;
         $productIds = $data['product_id'] ?? [];
         $descriptions = $data['description'] ?? [];
         $quantities = $data['quantity'] ?? [];
@@ -158,6 +197,8 @@ class PurchaseOrderController extends Controller
             }
             $subtotal = $qty * $price;
             $taxAmount = $subtotal * ($tax / 100);
+            $subtotalBase = convert_to_base($subtotal, $currencyCode);
+            $taxAmountBase = convert_to_base($taxAmount, $currencyCode);
             
             \App\Models\PurchaseOrderItem::create([
                 'purchase_order_id' => $po->id,
@@ -167,12 +208,26 @@ class PurchaseOrderController extends Controller
                 'unit_price' => $price,
                 'tax_rate' => $tax,
                 'subtotal' => $subtotal + $taxAmount,
+                'currency_code' => $currencyCode,
+                'exchange_rate' => $rateToBase,
+                'unit_price_base' => convert_to_base($price, $currencyCode),
+                'subtotal_base' => $subtotalBase + $taxAmountBase,
             ]);
             
             $total += $subtotal + $taxAmount;
+            $taxTotal += $taxAmount;
+            $totalBase += $subtotalBase + $taxAmountBase;
+            $taxTotalBase += $taxAmountBase;
         }
 
-        $po->update(['total' => $total]);
+        $po->update([
+            'subtotal' => $total - $taxTotal,
+            'tax_amount' => $taxTotal,
+            'total' => $total,
+            'subtotal_base' => $totalBase - $taxTotalBase,
+            'tax_amount_base' => $taxTotalBase,
+            'total_base' => $totalBase,
+        ]);
 
         return redirect()->route('purchase.orders.index')->with('success', 'Purchase order updated successfully');
     }

@@ -45,20 +45,20 @@
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Terms</label>
                                             <select name="payment_terms" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
-                                                <option value="immediate" {{ $order['payment_terms'] == 'immediate' ? 'selected' : '' }}>Immediate Payment</option>
-                                                <option value="15 days" {{ $order['payment_terms'] == '15 days' ? 'selected' : '' }}>15 Days</option>
-                                                <option value="30 days" {{ $order['payment_terms'] == '30 days' ? 'selected' : '' }}>30 Days</option>
-                                                <option value="45 days" {{ $order['payment_terms'] == '45 days' ? 'selected' : '' }}>45 Days</option>
-                                                <option value="60 days" {{ $order['payment_terms'] == '60 days' ? 'selected' : '' }}>60 Days</option>
+                                                <option value="immediate" {{ ($order['payment_terms'] ?? '') == 'immediate' ? 'selected' : '' }}>Immediate Payment</option>
+                                                <option value="15 days" {{ ($order['payment_terms'] ?? '') == '15 days' ? 'selected' : '' }}>15 Days</option>
+                                                <option value="30 days" {{ ($order['payment_terms'] ?? '') == '30 days' ? 'selected' : '' }}>30 Days</option>
+                                                <option value="45 days" {{ ($order['payment_terms'] ?? '') == '45 days' ? 'selected' : '' }}>45 Days</option>
+                                                <option value="60 days" {{ ($order['payment_terms'] ?? '') == '60 days' ? 'selected' : '' }}>60 Days</option>
                                             </select>
                                         </div>
 
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pricelist</label>
                                             <select name="pricelist" class="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#5A8E74]">
-                                                <option value="standard" {{ $order['pricelist'] == 'Standard' ? 'selected' : '' }}>Standard Price</option>
-                                                <option value="wholesale" {{ $order['pricelist'] == 'Wholesale' ? 'selected' : '' }}>Wholesale Price</option>
-                                                <option value="retail" {{ $order['pricelist'] == 'Retail' ? 'selected' : '' }}>Retail Price</option>
+                                                <option value="standard" {{ ($order['pricelist'] ?? '') == 'Standard' ? 'selected' : '' }}>Standard Price</option>
+                                                <option value="wholesale" {{ ($order['pricelist'] ?? '') == 'Wholesale' ? 'selected' : '' }}>Wholesale Price</option>
+                                                <option value="retail" {{ ($order['pricelist'] ?? '') == 'Retail' ? 'selected' : '' }}>Retail Price</option>
                                             </select>
                                         </div>
                                     </div>

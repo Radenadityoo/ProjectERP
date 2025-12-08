@@ -17,18 +17,27 @@ class SalesOrder extends Model
         'order_date',
         'delivery_date',
         'status',
+        'currency_code',
+        'exchange_rate',
         'subtotal',
         'tax_amount',
         'total',
+        'subtotal_base',
+        'tax_amount_base',
+        'total_base',
         'notes',
     ];
 
     protected $casts = [
         'order_date' => 'date',
         'delivery_date' => 'date',
+        'exchange_rate' => 'decimal:6',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'subtotal_base' => 'decimal:2',
+        'tax_amount_base' => 'decimal:2',
+        'total_base' => 'decimal:2',
     ];
 
     public function customer(): BelongsTo

@@ -13,20 +13,22 @@ class SalesOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $orders = SalesOrder::with('customer')
+        $orders = SalesOrder::with('customer:id,name')
+            ->select('id', 'so_number', 'customer_id', 'order_date', 'delivery_date', 'status', 'total', 'total_base')
             ->orderByDesc('order_date')
-            ->get()
-            ->map(function ($order) {
-                return [
-                    'id' => $order->id,
-                    'so_number' => $order->so_number,
-                    'customer' => $order->customer?->name,
-                    'order_date' => optional($order->order_date)->format('Y-m-d'),
-                    'delivery_date' => optional($order->delivery_date)->format('Y-m-d'),
-                    'status' => $order->status,
-                    'total' => 'Rp ' . number_format((float) ($order->total ?? 0), 0, ',', '.'),
-                ];
-            });
+            ->paginate(25);
+
+        $orders->getCollection()->transform(function ($order) {
+            return [
+                'id' => $order->id,
+                'so_number' => $order->so_number,
+                'customer' => $order->customer?->name,
+                'order_date' => optional($order->order_date)->format('Y-m-d'),
+                'delivery_date' => optional($order->delivery_date)->format('Y-m-d'),
+                'status' => $order->status,
+                'total' => currency(($order->total_base ?: $order->total), base_currency()),
+            ];
+        });
 
         $commandbar = [
             'title' => 'Sales Orders',
@@ -58,6 +60,7 @@ class SalesOrderController extends Controller
             'order_date' => 'required|date',
             'delivery_date' => 'nullable|date',
             'status' => 'nullable|in:draft,confirmed,delivered,cancelled',
+            'currency_code' => 'nullable|string|size:3',
             'lines' => 'required|array|min:1',
             'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.description' => 'nullable|string',
@@ -65,6 +68,9 @@ class SalesOrderController extends Controller
             'lines.*.unit_price' => 'required|numeric|min:0',
             'lines.*.tax' => 'nullable|numeric|min:0',
         ]);
+
+        $currencyCode = strtoupper($data['currency_code'] ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
 
         $soNumber = 'SO-' . now()->format('YmdHis');
 
@@ -74,15 +80,21 @@ class SalesOrderController extends Controller
             'order_date' => $data['order_date'],
             'delivery_date' => $data['delivery_date'] ?? null,
             'status' => $data['status'] ?? 'draft',
+            'currency_code' => $currencyCode,
+            'exchange_rate' => $rateToBase,
             'notes' => $request->input('notes'),
         ]);
 
         $subtotal = 0;
         $taxTotal = 0;
+        $subtotalBase = 0;
+        $taxTotalBase = 0;
 
         foreach ($data['lines'] as $line) {
             $lineSubtotal = $line['quantity'] * $line['unit_price'];
             $lineTax = ($line['tax'] ?? 0) / 100 * $lineSubtotal;
+            $lineSubtotalBase = convert_to_base($lineSubtotal, $currencyCode);
+            $lineTaxBase = convert_to_base($lineTax, $currencyCode);
 
             SalesOrderItem::create([
                 'sales_order_id' => $order->id,
@@ -92,16 +104,25 @@ class SalesOrderController extends Controller
                 'unit_price' => $line['unit_price'],
                 'tax_rate' => $line['tax'] ?? 0,
                 'subtotal' => $lineSubtotal,
+                'currency_code' => $currencyCode,
+                'exchange_rate' => $rateToBase,
+                'unit_price_base' => convert_to_base($line['unit_price'], $currencyCode),
+                'subtotal_base' => $lineSubtotalBase,
             ]);
 
             $subtotal += $lineSubtotal;
             $taxTotal += $lineTax;
+            $subtotalBase += $lineSubtotalBase;
+            $taxTotalBase += $lineTaxBase;
         }
 
         $order->update([
             'subtotal' => $subtotal,
             'tax_amount' => $taxTotal,
             'total' => $subtotal + $taxTotal,
+            'subtotal_base' => $subtotalBase,
+            'tax_amount_base' => $taxTotalBase,
+            'total_base' => $subtotalBase + $taxTotalBase,
         ]);
 
         return redirect()->route('sales.orders.index')->with('success', 'Sales order saved');
@@ -123,6 +144,8 @@ class SalesOrderController extends Controller
             'order_date' => optional($orderModel->order_date)->format('Y-m-d'),
             'delivery_date' => optional($orderModel->delivery_date)->format('Y-m-d'),
             'status' => $orderModel->status,
+            'payment_terms' => $orderModel->payment_terms ?? null,
+            'pricelist' => $orderModel->pricelist ?? null,
             'lines' => $orderModel->items->map(function ($item) {
                 return [
                     'product_id' => $item->product_id,
@@ -148,6 +171,7 @@ class SalesOrderController extends Controller
             'order_date' => 'required|date',
             'delivery_date' => 'nullable|date',
             'status' => 'in:draft,confirmed,delivered,cancelled',
+            'currency_code' => 'nullable|string|size:3',
             'lines' => 'required|array|min:1',
             'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.description' => 'nullable|string',
@@ -157,11 +181,16 @@ class SalesOrderController extends Controller
         ]);
 
         $order = SalesOrder::findOrFail($id);
+        $currencyCode = strtoupper($data['currency_code'] ?? $order->currency_code ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
+
         $order->update([
             'customer_id' => $data['customer_id'],
             'order_date' => $data['order_date'],
             'delivery_date' => $data['delivery_date'] ?? null,
             'status' => $data['status'],
+            'currency_code' => $currencyCode,
+            'exchange_rate' => $rateToBase,
             'notes' => $request->input('notes'),
         ]);
 
@@ -169,9 +198,13 @@ class SalesOrderController extends Controller
 
         $subtotal = 0;
         $taxTotal = 0;
+        $subtotalBase = 0;
+        $taxTotalBase = 0;
         foreach ($data['lines'] as $line) {
             $lineSubtotal = $line['quantity'] * $line['unit_price'];
             $lineTax = ($line['tax'] ?? 0) / 100 * $lineSubtotal;
+            $lineSubtotalBase = convert_to_base($lineSubtotal, $currencyCode);
+            $lineTaxBase = convert_to_base($lineTax, $currencyCode);
 
             SalesOrderItem::create([
                 'sales_order_id' => $order->id,
@@ -181,16 +214,25 @@ class SalesOrderController extends Controller
                 'unit_price' => $line['unit_price'],
                 'tax_rate' => $line['tax'] ?? 0,
                 'subtotal' => $lineSubtotal,
+                'currency_code' => $currencyCode,
+                'exchange_rate' => $rateToBase,
+                'unit_price_base' => convert_to_base($line['unit_price'], $currencyCode),
+                'subtotal_base' => $lineSubtotalBase,
             ]);
 
             $subtotal += $lineSubtotal;
             $taxTotal += $lineTax;
+            $subtotalBase += $lineSubtotalBase;
+            $taxTotalBase += $lineTaxBase;
         }
 
         $order->update([
             'subtotal' => $subtotal,
             'tax_amount' => $taxTotal,
             'total' => $subtotal + $taxTotal,
+            'subtotal_base' => $subtotalBase,
+            'tax_amount_base' => $taxTotalBase,
+            'total_base' => $subtotalBase + $taxTotalBase,
         ]);
 
         return redirect()->route('sales.orders.index')->with('success', 'Sales order updated');

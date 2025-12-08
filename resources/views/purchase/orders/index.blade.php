@@ -97,8 +97,9 @@
                 </tbody>
             </table>
         </div>
-        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400">
-            Showing 1-{{ $orders->count() }} of {{ $orders->count() }}
+        <div class="px-4 py-3 border-t border-gray-100 dark:border-gray-700 text-sm text-gray-600 dark:text-gray-400 flex items-center justify-between">
+            <span>Showing {{ $orders->firstItem() }}-{{ $orders->lastItem() }} of {{ $orders->total() }}</span>
+            {{ $orders->links() }}
         </div>
     </div>
 </div>

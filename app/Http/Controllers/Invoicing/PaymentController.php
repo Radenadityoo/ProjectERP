@@ -27,7 +27,7 @@ class PaymentController extends Controller
                     'customer' => $p->customer?->name ?? 'N/A',
                     'invoice_ref' => $p->invoice_ref ?? $p->invoice?->number ?? 'N/A',
                     'payment_date' => $p->payment_date instanceof \Carbon\Carbon ? $p->payment_date->format('Y-m-d') : $p->payment_date,
-                    'amount' => currency($p->amount, 'IDR'),
+                    'amount' => currency($p->amount_base ?? $p->amount, base_currency()),
                     'payment_method' => $p->payment_method,
                     'status' => ucfirst($p->status),
                 ];
@@ -56,7 +56,7 @@ class PaymentController extends Controller
                     'id' => $inv->id,
                     'number' => $inv->number,
                     'customer_id' => $inv->customer_id,
-                    'amount_due' => $inv->total - $inv->amount_paid,
+                    'amount_due' => ($inv->total_base ?? $inv->total) - ($inv->amount_paid_base ?? $inv->amount_paid ?? 0),
                 ];
             });
 
@@ -80,21 +80,34 @@ class PaymentController extends Controller
             'journal' => 'required|string',
             'payment_method' => 'required|string',
             'amount' => 'required|numeric|min:0',
+            'currency_code' => 'nullable|string|size:3',
             'memo' => 'nullable|string',
         ]);
 
+        $currencyCode = strtoupper($data['currency_code'] ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
+        $amountBase = convert_to_base($data['amount'], $currencyCode);
+
         $data['status'] = 'posted';
+        $data['currency_code'] = $currencyCode;
+        $data['exchange_rate'] = $rateToBase;
+        $data['amount_base'] = $amountBase;
+
         $payment = Payment::create($data);
 
         // Update invoice if linked
         if ($payment->invoice_id) {
             $invoice = Invoice::find($payment->invoice_id);
             if ($invoice) {
-                $newAmountPaid = (float)$invoice->amount_paid + (float)$payment->amount;
-                $newStatus = $newAmountPaid >= (float)$invoice->total ? 'paid' : 'partial';
-                
+                $newAmountPaid = (float) $invoice->amount_paid + (float) $payment->amount;
+                $newAmountPaidBase = (float) ($invoice->amount_paid_base ?? 0) + (float) $payment->amount_base;
+
+                $targetTotalBase = (float) ($invoice->total_base ?? convert_to_base($invoice->total, $invoice->currency_code ?? base_currency()));
+                $newStatus = $newAmountPaidBase >= $targetTotalBase ? 'paid' : 'partial';
+
                 $invoice->update([
                     'amount_paid' => $newAmountPaid,
+                    'amount_paid_base' => $newAmountPaidBase,
                     'status' => $newStatus,
                 ]);
             }

@@ -1,6 +1,6 @@
 <aside class="flex-shrink-0 w-[220px] min-h-screen bg-[#F7F8F7] dark:bg-gray-900 text-[#1A1A1A] dark:text-gray-100">
     <div class="px-3 py-4">
-        <a href="{{ url('/') }}" class="flex items-center gap-3 mb-2">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 mb-2 hover:opacity-90 transition" title="Go to Dashboard">
             <div class="w-8 h-8 rounded bg-erp flex items-center justify-center" style="background:#5A8E74;">
                 <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect></svg>
             </div>
@@ -55,10 +55,30 @@
 
                 // employees actives
                 $activeEmployees = request()->routeIs('employees.*');
+                $activeEmployeesIndex = request()->routeIs('employees.index');
+                $activeEmployeesCreate = request()->routeIs('employees.create');
 
                 // settings actives
                 $activeSettings = request()->routeIs('settings.*');
+                $activeSettingsGeneral = request()->routeIs('settings.general');
+                $activeSettingsCurrency = request()->routeIs('settings.currency');
+
+                // main dashboard
+                $activeMainDashboard = request()->routeIs('dashboard');
             @endphp
+
+            <div class="mt-2 px-3 space-y-2">
+                <a href="{{ route('dashboard') }}" class="flex items-center justify-between w-full {{ $activeMainDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}" style="height:40px; padding:10px 12px; border-radius:8px;" aria-label="Main Dashboard">
+                    <span class="inline-flex items-center gap-2 text-sm {{ $activeMainDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]">
+                            <path d="M4 12h4v8H4z"/>
+                            <path d="M10 4h4v16h-4z"/>
+                            <path d="M16 9h4v11h-4z"/>
+                        </svg>
+                        <span>Dashboard</span>
+                    </span>
+                </a>
+            </div>
 
             <div class="module-section mb-2" data-section="modules-parent">
                 <button type="button" class="w-full flex items-center justify-between px-3 py-2 rounded text-left text-[11px] uppercase text-[#8A8A8A]" data-toggle>
@@ -74,28 +94,28 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('admin.manufacturing.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeManuDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.manufacturing.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeManuDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeManuDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeManuDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Manufacturing Dashboard</span>
                             </a>
 
-                            <a href="{{ route('admin.manufacturing.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeManuOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.manufacturing.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeManuOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeManuOrders ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><path d="M3 14h7v7H3z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeManuOrders ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Manufacturing Orders</span>
                             </a>
 
-                            <a href="{{ route('products.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeP ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('products.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeP ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeP ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M20 7H4"/><path d="M4 17h16"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeP ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Products</span>
                             </a>
 
-                            <a href="{{ route('admin.bom.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeBom ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.bom.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeBom ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeBom ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
                                 </span>
@@ -111,49 +131,49 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('admin.inventory.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Inventory Dashboard</span>
                             </a>
 
-                            <a href="{{ route('admin.inventory.products.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvProducts ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.products.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvProducts ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvProducts ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M20 7H4"/><path d="M4 17h16"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvProducts ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Products</span>
                             </a>
 
-                            <a href="{{ route('admin.inventory.movements.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvMovements ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.movements.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvMovements ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvMovements ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvMovements ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Movements</span>
                             </a>
 
-                            <a href="{{ route('admin.inventory.receipts.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvReceipts ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.receipts.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvReceipts ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvReceipts ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M21 15V6a2 2 0 0 0-2-2H7L3 6v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvReceipts ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Receipts</span>
                             </a>
 
-                            <a href="{{ route('admin.inventory.deliveries.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvDeliveries ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.deliveries.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvDeliveries ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvDeliveries ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 7h18"/><path d="M5 21h14l-1-7H6l-1 7z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvDeliveries ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Deliveries</span>
                             </a>
 
-                            <a href="{{ route('admin.inventory.transfers.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvTransfers ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.transfers.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvTransfers ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvTransfers ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M7 17l-4-4 4-4"/><path d="M17 7l4 4-4 4"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvTransfers ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Transfers</span>
                             </a>
 
-                            <a href="{{ route('admin.inventory.adjustments.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvAdjustments ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('admin.inventory.adjustments.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvAdjustments ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvAdjustments ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M12 2v20"/><path d="M2 12h20"/></svg>
                                 </span>
@@ -169,21 +189,21 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('purchase.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('purchase.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activePurchaseDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activePurchaseDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Purchase Dashboard</span>
                             </a>
 
-                            <a href="{{ route('purchase.orders.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('purchase.orders.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activePurchaseOrders ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activePurchaseOrders ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Purchase Orders</span>
                             </a>
 
-                            <a href="{{ route('purchase.vendors.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseVendors ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('purchase.vendors.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activePurchaseVendors ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activePurchaseVendors ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
                                 </span>
@@ -199,21 +219,21 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('sales.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSalesDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('sales.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSalesDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeSalesDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeSalesDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Sales Dashboard</span>
                             </a>
 
-                            <a href="{{ route('sales.orders.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSalesOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('sales.orders.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSalesOrders ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeSalesOrders ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeSalesOrders ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Sales Orders</span>
                             </a>
 
-                            <a href="{{ route('sales.customers.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSalesCustomers ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('sales.customers.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSalesCustomers ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeSalesCustomers ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M17 20h5v-2a3 3 0 0 0-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 0 1 5.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 0 1 9.288 0M15 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0zm6 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 10a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/></svg>
                                 </span>
@@ -229,21 +249,21 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('invoicing.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('invoicing.dashboard') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingDashboard ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvoicingDashboard ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M3 13h8V3H3z"/><path d="M13 21h8V11h-8z"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvoicingDashboard ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Invoicing Dashboard</span>
                             </a>
 
-                            <a href="{{ route('invoicing.invoices.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingInvoices ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('invoicing.invoices.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingInvoices ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvoicingInvoices ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
                                 </span>
                                 <span class="text-sm {{ $activeInvoicingInvoices ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Invoices</span>
                             </a>
 
-                            <a href="{{ route('invoicing.payments.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingPayments ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
+                            <a href="{{ route('invoicing.payments.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeInvoicingPayments ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
                                 <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeInvoicingPayments ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
                                 </span>
@@ -259,17 +279,17 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeEmployees ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
-                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeEmployees ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                            <a href="{{ route('employees.index') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeEmployeesIndex ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeEmployeesIndex ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0112 0v1"/></svg>
                                 </span>
-                                <span class="text-sm {{ $activeEmployees ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Employee Directory</span>
+                                <span class="text-sm {{ $activeEmployeesIndex ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Employee Directory</span>
                             </a>
-                            <a href="{{ route('employees.create') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg">
-                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] text-gray-400 dark:text-gray-400">
+                            <a href="{{ route('employees.create') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeEmployeesCreate ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeEmployeesCreate ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
                                 </span>
-                                <span class="text-sm text-[#1A1A1A] dark:text-gray-100">Add Employee</span>
+                                <span class="text-sm {{ $activeEmployeesCreate ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Add Employee</span>
                             </a>
                         </nav>
                     </div>
@@ -281,17 +301,17 @@
                         </button>
 
                         <nav class="space-y-2 px-1 mt-2 module-contents-inner" data-content>
-                            <a href="{{ route('settings.general') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSettings ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }}">
-                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeSettings ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
+                            <a href="{{ route('settings.general') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSettingsGeneral ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeSettingsGeneral ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M12 6V2m0 4a2 2 0 1 1 0 4m0-4a2 2 0 1 0 0 4m0 4v4m0-4a2 2 0 1 1 0-4m0 4a2 2 0 1 0 0-4"/></svg>
                                 </span>
-                                <span class="text-sm {{ $activeSettings ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">General Settings</span>
+                                <span class="text-sm {{ $activeSettingsGeneral ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">General Settings</span>
                             </a>
-                            <a href="{{ route('settings.currency') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg">
-                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] text-gray-400 dark:text-gray-400">
+                            <a href="{{ route('settings.currency') }}" class="flex items-center gap-3 h-[40px] px-3 rounded-lg {{ $activeSettingsCurrency ? 'bg-[#E4EFE9] dark:bg-[#163a2a]' : '' }} hover:bg-[#E4EFE9] dark:hover:bg-[#163a2a] hover:text-erp transition">
+                                <span class="inline-flex items-center justify-center w-[18px] h-[18px] {{ $activeSettingsCurrency ? 'text-erp' : 'text-gray-400 dark:text-gray-400' }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-[18px] h-[18px]"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                                 </span>
-                                <span class="text-sm text-[#1A1A1A] dark:text-gray-100">Currency Settings</span>
+                                <span class="text-sm {{ $activeSettingsCurrency ? 'text-erp' : 'text-[#1A1A1A] dark:text-gray-100' }}">Currency Settings</span>
                             </a>
                         </nav>
                     </div>

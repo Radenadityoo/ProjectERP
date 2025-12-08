@@ -30,12 +30,19 @@ class PurchaseOrderItem extends Model
         'unit_price',
         'tax_rate',
         'subtotal',
+        'currency_code',
+        'exchange_rate',
+        'unit_price_base',
+        'subtotal_base',
     ];
 
     protected $casts = [
         'quantity' => 'decimal:2',
         'unit_price' => 'decimal:2',
         'subtotal' => 'decimal:2',
+        'exchange_rate' => 'decimal:6',
+        'unit_price_base' => 'decimal:2',
+        'subtotal_base' => 'decimal:2',
     ];
 
     public function purchaseOrder(): BelongsTo

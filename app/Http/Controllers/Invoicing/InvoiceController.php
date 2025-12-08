@@ -14,24 +14,26 @@ class InvoiceController extends Controller
 {
     public function index(Request $request)
     {
-        $invoices = Invoice::with('customer')
+        $invoices = Invoice::with('customer:id,name')
+            ->select('id', 'number', 'customer_id', 'invoice_date', 'due_date', 'status', 'total', 'total_base')
             ->orderByDesc('invoice_date')
-            ->get()
-            ->map(function ($invoice) {
-                return [
-                    'id' => $invoice->id,
-                    'number' => $invoice->number,
-                    'customer' => $invoice->customer?->name,
-                    'invoice_date' => optional($invoice->invoice_date)->format('Y-m-d'),
-                    'due_date' => optional($invoice->due_date)->format('Y-m-d'),
-                    'status' => $invoice->status,
-                    'total' => 'Rp ' . number_format((float) ($invoice->total ?? 0), 0, ',', '.'),
-                ];
-            });
+            ->paginate(25);
+
+        $invoices->getCollection()->transform(function ($invoice) {
+            return [
+                'id' => $invoice->id,
+                'number' => $invoice->number,
+                'customer' => $invoice->customer?->name,
+                'invoice_date' => optional($invoice->invoice_date)->format('Y-m-d'),
+                'due_date' => optional($invoice->due_date)->format('Y-m-d'),
+                'status' => $invoice->status,
+                'total' => currency(($invoice->total_base ?: $invoice->total), base_currency()),
+            ];
+        });
 
         $commandbar = [
             'title' => 'Invoices',
-            'count' => $invoices->count(),
+            'count' => $invoices->total(),
             'showViewSwitch' => false,
             'searchParam' => 'q',
         ];
@@ -66,6 +68,7 @@ class InvoiceController extends Controller
             'invoice_date' => 'required|date',
             'due_date' => 'required|date',
             'status' => 'nullable|in:draft,posted,paid,cancelled,overdue',
+            'currency_code' => 'nullable|string|size:3',
             'lines' => 'required|array|min:1',
             'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.description' => 'nullable|string',
@@ -73,6 +76,9 @@ class InvoiceController extends Controller
             'lines.*.unit_price' => 'required|numeric|min:0',
             'lines.*.tax' => 'nullable|numeric|min:0',
         ]);
+
+        $currencyCode = strtoupper($data['currency_code'] ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
 
         $number = 'INV/' . now()->format('Ymd/His');
 
@@ -83,16 +89,22 @@ class InvoiceController extends Controller
             'invoice_date' => $data['invoice_date'],
             'due_date' => $data['due_date'],
             'status' => $data['status'] ?? 'draft',
+            'currency_code' => $currencyCode,
+            'exchange_rate' => $rateToBase,
             'reference' => $request->input('reference'),
             'notes' => $request->input('notes'),
         ]);
 
         $subtotal = 0;
         $taxTotal = 0;
+        $subtotalBase = 0;
+        $taxTotalBase = 0;
 
         foreach ($data['lines'] as $line) {
             $lineSubtotal = $line['quantity'] * $line['unit_price'];
             $lineTax = ($line['tax'] ?? 0) / 100 * $lineSubtotal;
+            $lineSubtotalBase = convert_to_base($lineSubtotal, $currencyCode);
+            $lineTaxBase = convert_to_base($lineTax, $currencyCode);
 
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
@@ -102,16 +114,25 @@ class InvoiceController extends Controller
                 'unit_price' => $line['unit_price'],
                 'tax_rate' => $line['tax'] ?? 0,
                 'subtotal' => $lineSubtotal,
+                'currency_code' => $currencyCode,
+                'exchange_rate' => $rateToBase,
+                'unit_price_base' => convert_to_base($line['unit_price'], $currencyCode),
+                'subtotal_base' => $lineSubtotalBase,
             ]);
 
             $subtotal += $lineSubtotal;
             $taxTotal += $lineTax;
+            $subtotalBase += $lineSubtotalBase;
+            $taxTotalBase += $lineTaxBase;
         }
 
         $invoice->update([
             'subtotal' => $subtotal,
             'tax_amount' => $taxTotal,
             'total' => $subtotal + $taxTotal,
+            'subtotal_base' => $subtotalBase,
+            'tax_amount_base' => $taxTotalBase,
+            'total_base' => $subtotalBase + $taxTotalBase,
         ]);
 
         return redirect()->route('invoicing.invoices.index')->with('success', 'Invoice saved');
@@ -167,6 +188,7 @@ class InvoiceController extends Controller
             'invoice_date' => 'required|date',
             'due_date' => 'required|date',
             'status' => 'in:draft,posted,paid,cancelled,overdue',
+            'currency_code' => 'nullable|string|size:3',
             'lines' => 'required|array|min:1',
             'lines.*.product_id' => 'nullable|exists:products,id',
             'lines.*.description' => 'nullable|string',
@@ -176,12 +198,17 @@ class InvoiceController extends Controller
         ]);
 
         $invoice = Invoice::findOrFail($id);
+        $currencyCode = strtoupper($data['currency_code'] ?? $invoice->currency_code ?? setting('currency.default', base_currency()));
+        $rateToBase = currency_rate_to_base($currencyCode);
+
         $invoice->update([
             'customer_id' => $data['customer_id'],
             'sales_order_id' => $data['sales_order_id'] ?? null,
             'invoice_date' => $data['invoice_date'],
             'due_date' => $data['due_date'],
             'status' => $data['status'],
+            'currency_code' => $currencyCode,
+            'exchange_rate' => $rateToBase,
             'reference' => $request->input('reference'),
             'notes' => $request->input('notes'),
         ]);
@@ -190,9 +217,13 @@ class InvoiceController extends Controller
 
         $subtotal = 0;
         $taxTotal = 0;
+        $subtotalBase = 0;
+        $taxTotalBase = 0;
         foreach ($data['lines'] as $line) {
             $lineSubtotal = $line['quantity'] * $line['unit_price'];
             $lineTax = ($line['tax'] ?? 0) / 100 * $lineSubtotal;
+            $lineSubtotalBase = convert_to_base($lineSubtotal, $currencyCode);
+            $lineTaxBase = convert_to_base($lineTax, $currencyCode);
 
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
@@ -202,16 +233,25 @@ class InvoiceController extends Controller
                 'unit_price' => $line['unit_price'],
                 'tax_rate' => $line['tax'] ?? 0,
                 'subtotal' => $lineSubtotal,
+                'currency_code' => $currencyCode,
+                'exchange_rate' => $rateToBase,
+                'unit_price_base' => convert_to_base($line['unit_price'], $currencyCode),
+                'subtotal_base' => $lineSubtotalBase,
             ]);
 
             $subtotal += $lineSubtotal;
             $taxTotal += $lineTax;
+            $subtotalBase += $lineSubtotalBase;
+            $taxTotalBase += $lineTaxBase;
         }
 
         $invoice->update([
             'subtotal' => $subtotal,
             'tax_amount' => $taxTotal,
             'total' => $subtotal + $taxTotal,
+            'subtotal_base' => $subtotalBase,
+            'tax_amount_base' => $taxTotalBase,
+            'total_base' => $subtotalBase + $taxTotalBase,
         ]);
 
         return redirect()->route('invoicing.invoices.index')->with('success', 'Invoice updated');

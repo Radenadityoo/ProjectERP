@@ -18,6 +18,10 @@ class InvoiceItem extends Model
         'unit_price',
         'tax_rate',
         'subtotal',
+        'currency_code',
+        'exchange_rate',
+        'unit_price_base',
+        'subtotal_base',
     ];
 
     protected $casts = [
@@ -25,6 +29,9 @@ class InvoiceItem extends Model
         'unit_price' => 'decimal:2',
         'tax_rate' => 'decimal:2',
         'subtotal' => 'decimal:2',
+        'exchange_rate' => 'decimal:6',
+        'unit_price_base' => 'decimal:2',
+        'subtotal_base' => 'decimal:2',
     ];
 
     public function invoice(): BelongsTo

@@ -31,6 +31,9 @@ class Payment extends Model
         'journal',
         'payment_method',
         'amount',
+        'currency_code',
+        'exchange_rate',
+        'amount_base',
         'memo',
         'status',
     ];
@@ -38,6 +41,8 @@ class Payment extends Model
     protected $casts = [
         'payment_date' => 'date',
         'amount' => 'decimal:2',
+        'exchange_rate' => 'decimal:6',
+        'amount_base' => 'decimal:2',
     ];
 
     public function customer(): BelongsTo

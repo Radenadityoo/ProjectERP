@@ -34,19 +34,27 @@ class PurchaseOrder extends Model
         'expected_arrival',
         'reference',
         'currency',
+        'exchange_rate',
         'status',
         'subtotal',
         'tax_amount',
         'total',
+        'subtotal_base',
+        'tax_amount_base',
+        'total_base',
         'notes',
     ];
 
     protected $casts = [
         'order_date' => 'date',
         'expected_arrival' => 'date',
+        'exchange_rate' => 'decimal:6',
         'subtotal' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'subtotal_base' => 'decimal:2',
+        'tax_amount_base' => 'decimal:2',
+        'total_base' => 'decimal:2',
     ];
 
     public function vendor(): BelongsTo

@@ -106,6 +106,15 @@
             </table>
         </div>
     </div>
+
+    <div class="mt-4 flex flex-col gap-2">
+        <div class="text-sm text-gray-600 dark:text-gray-300">
+            Showing {{ $invoices->firstItem() ?? 0 }}–{{ $invoices->lastItem() ?? 0 }} of {{ $invoices->total() }} invoices
+        </div>
+        <div>
+            {{ $invoices->links() }}
+        </div>
+    </div>
 </div>
 
     @push('scripts')
